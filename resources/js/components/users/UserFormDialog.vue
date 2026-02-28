@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/select';
 import { store, update } from '@/routes/users';
 import type { User } from '@/types';
-import { useCurrentUserId } from '@/utils/useCurrentUserId';
+import { useAuth } from '@/utils/useAuth';
 
 const props = defineProps<{
   open: boolean;
@@ -42,6 +42,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:open', value: boolean): void;
 }>();
+
+const { userId } = useAuth();
 
 const isEditing = computed(() => !!props.user);
 const dialogTitle = computed(() =>
@@ -200,7 +202,7 @@ const onSubmit = handleSubmit((values) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem v-for="role in roles" :key="role" :value="role" :disabled="useCurrentUserId() === props.user?.id && role !== 'admin'">
+                <SelectItem v-for="role in roles" :key="role" :value="role" :disabled="userId === props.user?.id && role !== 'admin'">
                   {{
                     role.charAt(0).toUpperCase() +
                     role.slice(1)

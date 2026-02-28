@@ -7,7 +7,6 @@ import DataTable from '@/components/users/DataTable.vue';
 import DeleteUserDialog from '@/components/users/DeleteUserDialog.vue';
 import UserFormDialog from '@/components/users/UserFormDialog.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
 import type { BreadcrumbItem, User } from '@/types';
 import { columns } from '../components/users/columns';
 

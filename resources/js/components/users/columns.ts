@@ -4,7 +4,7 @@ import { h } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { User } from '@/types';
-import { useCurrentUserId } from '@/utils/useCurrentUserId';
+import { useAuth } from '@/utils/useAuth';
 
 const sortIcon = (isSorted: 'asc' | 'desc' | false) => {
     if (isSorted === 'asc') {
@@ -14,6 +14,8 @@ const sortIcon = (isSorted: 'asc' | 'desc' | false) => {
     }
     return ArrowUpDown
 };
+
+const { userId } = useAuth();
 
 export const columns: ColumnDef<User>[] = [
     {
@@ -79,7 +81,7 @@ export const columns: ColumnDef<User>[] = [
                             class: 'h-4 w-4 text-muted-foreground',
                         }),
                 ),
-                ...(useCurrentUserId() !== user.id
+                ...(userId.value !== user.id
                     ? [
                           h(
                               Button,
