@@ -20,7 +20,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import AppLayout from '@/layouts/AppLayout.vue';
-import { edit } from '@/routes/courses';
+import { edit, show } from '@/routes/courses';
+import { index } from '@/routes/courses/modules';
 import type { BreadcrumbItem, Course } from '@/types';
 
 const props = defineProps<{
@@ -85,13 +86,15 @@ function openDeleteDialog(course: Course) {
           </CardDescription>
         </CardHeader>
         <CardContent class="grow">
-          <span class="text-sm text-muted-foreground">{{ course.code }}</span>
+          <span class="text-sm text-muted-foreground">Kode: {{ course.code }}</span>
         </CardContent>
         <CardFooter class="mt-auto flex w-full gap-2">
           <Button class="w-[42%]" as-child>
-            <Link :href="edit.url(course.id)">Atur Modul</Link>
+            <Link :href="index.url(course.id)">Atur Modul</Link>
           </Button>
-          <Button variant="outline" class="w-[42%]">Statistik</Button>
+          <Button variant="outline" class="w-[42%]">
+            <Link :href="show.url(course.id)">Statistik</Link>
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger as-child>
               <Button variant="outline">

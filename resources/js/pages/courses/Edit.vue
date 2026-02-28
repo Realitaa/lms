@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft } from 'lucide-vue-next';
+import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
 import CourseForm from '@/components/courses/CourseForm.vue';
-import { Button } from '@/components/ui/button';
+import TitleWithBack from '@/components/TitleWithBack.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { update } from '@/routes/courses';
 import type { BreadcrumbItem, Course } from '@/types';
@@ -17,6 +16,10 @@ const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Kursus',
     href: '/courses',
+  },
+  {
+    title: props.course.title,
+    href: `/courses/${props.course.id}`,
   },
   {
     title: 'Edit Kursus',
@@ -49,17 +52,11 @@ function onSubmit(formData: FormData) {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex flex-col gap-6 p-4">
-      <div class="flex items-center gap-4">
-        <Button variant="outline" size="icon" as-child>
-          <Link href="/courses">
-            <ArrowLeft class="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 class="text-2xl font-bold tracking-tight">Edit Kursus</h1>
-          <p class="text-muted-foreground">Ubah detail kursus <strong>{{ course.title }}</strong></p>
-        </div>
-      </div>
+      <TitleWithBack
+        back-url="/courses"
+        :title="`Edit Kursus ${course.title}`"
+        :subtitle="`Ubah detail kursus ${course.title}`"
+      />
 
       <CourseForm :course="course" :is-submitting="isSubmitting" @submit="onSubmit" />
     </div>
