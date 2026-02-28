@@ -13,6 +13,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import courses from '@/routes/courses';
 import users from '@/routes/users';
 import type { NavItem } from '@/types';
 import AppLogo from './AppLogo.vue';
@@ -31,7 +32,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Manajemen Kursus',
-        href: '#',
+        href: courses.index(),
         icon: HugeIconsCourse,
     }
 ];

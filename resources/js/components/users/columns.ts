@@ -29,6 +29,7 @@ export const columns: ColumnDef<User>[] = [
                         column.toggleSorting(
                             column.getIsSorted() === 'asc',
                         ),
+                    class: 'px-0! cursor-pointer',
                 },
                 () => ['Name', h(sortIcon(column.getIsSorted()), { class: 'ml-2 h-3 w-3' })],
             ),

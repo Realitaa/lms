@@ -11,12 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { destroy } from '@/routes/users';
-import type { User } from '@/types';
+import { destroy } from '@/routes/courses';
+import type { Course } from '@/types';
 
 const props = defineProps<{
   open: boolean;
-  user: User | null;
+  course: Course | null;
 }>();
 
 const emit = defineEmits<{
@@ -26,17 +26,17 @@ const emit = defineEmits<{
 const isDeleting = ref(false);
 
 function onConfirm() {
-  if (!props.user) return;
+  if (!props.course) return;
 
   isDeleting.value = true;
-  router.delete(destroy.url(props.user.id), {
+  router.delete(destroy.url(props.course.id), {
     preserveScroll: true,
     onSuccess: () => {
-      toast.success(`Pengguna ${props.user?.name} berhasil dihapus`);
+      toast.success(`Kursus ${props.course?.title} berhasil dihapus`);
       emit('update:open', false);
     },
     onError: (errors) => {
-      toast.error(`Gagal menghapus pengguna ${props.user?.name}: ${Object.values(errors)[0]}`);
+      toast.error(`Gagal menghapus kursus ${props.course?.title}: ${Object.values(errors)[0]}`);
     },
     onFinish: () => {
       isDeleting.value = false;
@@ -49,10 +49,10 @@ function onConfirm() {
   <Dialog :open="open" @update:open="emit('update:open', $event)">
     <DialogContent class="sm:max-w-106.25">
       <DialogHeader>
-        <DialogTitle>Delete User</DialogTitle>
+        <DialogTitle>Hapus Kursus</DialogTitle>
         <DialogDescription>
-          Apakah kamu yakin ingin menghapus pengguna 
-          <strong>{{ user?.name }}</strong>? Aksi ini tidak dapat dibatalkan.
+          Apakah Anda yakin ingin menghapus kursus
+          <strong>{{ course?.title }}</strong>? Aksi ini tidak dapat dibatalkan.
         </DialogDescription>
       </DialogHeader>
 
