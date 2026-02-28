@@ -1,10 +1,19 @@
 import type { ColumnDef } from '@tanstack/vue-table';
-import { ArrowUpDown, Pencil, Trash2 } from 'lucide-vue-next';
+import { ArrowUpDown, ArrowDownAZ, ArrowDownZA, Pencil, Trash2 } from 'lucide-vue-next';
 import { h } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { User } from '@/types';
-import currentUserId from '@/utils/currentUserId';
+import { useCurrentUserId } from '@/utils/useCurrentUserId';
+
+const sortIcon = (isSorted: 'asc' | 'desc' | false) => {
+    if (isSorted === 'asc') {
+        return ArrowDownAZ
+    } else if (isSorted === 'desc') {
+        return ArrowDownZA
+    }
+    return ArrowUpDown
+};
 
 export const columns: ColumnDef<User>[] = [
     {
@@ -19,40 +28,18 @@ export const columns: ColumnDef<User>[] = [
                             column.getIsSorted() === 'asc',
                         ),
                 },
-                () => ['Name', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })],
+                () => ['Name', h(sortIcon(column.getIsSorted()), { class: 'ml-2 h-3 w-3' })],
             ),
         cell: ({ row }) => row.getValue('name'),
     },
     {
         accessorKey: 'email',
-        header: ({ column }) =>
-            h(
-                Button,
-                {
-                    variant: 'ghost',
-                    onClick: () =>
-                        column.toggleSorting(
-                            column.getIsSorted() === 'asc',
-                        ),
-                },
-                () => ['Email', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })],
-            ),
+        header: () => h('span', 'Email'),
         cell: ({ row }) => row.getValue('email'),
     },
     {
         accessorKey: 'role',
-        header: ({ column }) =>
-            h(
-                Button,
-                {
-                    variant: 'ghost',
-                    onClick: () =>
-                        column.toggleSorting(
-                            column.getIsSorted() === 'asc',
-                        ),
-                },
-                () => ['Role', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })],
-            ),
+        header: () => h('span', 'Role'),
         cell: ({ row }) => {
             const role = row.getValue('role') as string;
             const variant =
@@ -92,7 +79,7 @@ export const columns: ColumnDef<User>[] = [
                             class: 'h-4 w-4 text-muted-foreground',
                         }),
                 ),
-                ...(currentUserId !== user.id
+                ...(useCurrentUserId() !== user.id
                     ? [
                           h(
                               Button,
