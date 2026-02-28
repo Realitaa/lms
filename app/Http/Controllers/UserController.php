@@ -35,12 +35,15 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validated = validator($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'role' => ['required', Rule::in(array_map(fn(Roles $role) => $role->value, Roles::cases()))],
-        ]);
+            'role' => [
+                'required',
+                Rule::in(array_map(fn(Roles $role) => $role->value, Roles::cases()))
+            ],
+        ])->validate();
 
         User::create([
             'name' => $validated['name'],
@@ -59,22 +62,19 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if ($request->has('role') && $request->user()?->id === $user->id) {
-            abort(403, 'Tidak dapat mengubah role sendiri.');
+        if ($request->input('role') !== $user->role && $request->user()?->id === $user->id) {
+            return back()->withErrors(['role' => 'Tidak dapat mengubah role sendiri.']);
         }
 
-        $validated = $request->validate([
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => [
-                'sometimes',
+        $validated = validator($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password' => ['nullable', 'string', 'min:8'],
+            'role' => [
                 'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
+                Rule::in(array_map(fn(Roles $role) => $role->value, Roles::cases()))
             ],
-            'password' => ['sometimes', 'nullable', 'string', 'min:8'],
-            'role' => ['sometimes', 'required', Rule::in(array_map(fn(Roles $role) => $role->value, Roles::cases()))],
-        ]);
+        ])->validate();
 
         if (array_key_exists('password', $validated) && $validated['password']) {
             $validated['password'] = Hash::make($validated['password']);
@@ -95,7 +95,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         if (request()->user()?->id === $user->id) {
-            abort(403, 'Tidak dapat menghapus akun sendiri.');
+            return back()->withErrors(['user' => 'Tidak dapat menghapus diri sendiri.']);
         }
 
         $user->delete();
