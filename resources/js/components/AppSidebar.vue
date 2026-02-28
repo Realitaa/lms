@@ -16,6 +16,7 @@ import { dashboard } from '@/routes';
 import users from '@/routes/users';
 import type { NavItem } from '@/types';
 import AppLogo from './AppLogo.vue';
+import HugeIconsCourse from './icons/HugeIconsCourse.vue';
 
 const mainNavItems: NavItem[] = [
     {
@@ -28,6 +29,11 @@ const mainNavItems: NavItem[] = [
         href: users.index(),
         icon: Users,
     },
+    {
+        title: 'Manajemen Kursus',
+        href: '#',
+        icon: HugeIconsCourse,
+    }
 ];
 </script>
 
