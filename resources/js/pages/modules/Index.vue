@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Plus, Trash2 } from 'lucide-vue-next';
+import { Plus, ChevronDown } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
 import CourseForm from '@/components/courses/CourseForm.vue';
@@ -21,6 +21,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import RichTextEditor from '@/components/editor/RichTextEditor.vue';
 
 const props = defineProps<{
   course: Course;
@@ -79,7 +80,7 @@ const tags = Array.from({ length: 50 }).map(
     </div>
     <div class="w-full flex gap-4 mx-4 h-[calc(100vh-200px)]">
       <div class="w-[67%] border">
-        editor
+        <RichTextEditor />
       </div>
       <Card class="w-2/7 h-full flex flex-col p-4">
         <CardHeader class="px-0">
@@ -103,17 +104,14 @@ const tags = Array.from({ length: 50 }).map(
                       Modul / Tes
                     </CardDescription>
                     <CardAction>
-                      <Button size="icon" variant="ghost" class="text-destructive hover:text-destructive">
-                        <Trash2 />
+                      <Button size="icon" variant="ghost">
+                        <ChevronDown />
                       </Button>
                     </CardAction>
                   </CardHeader>
                   <CardContent class="px-0">
                     <div v-for="i in 10" :key="i" class="flex justify-between border-b py-2">
                       <p class="font-bold text-sm">Apa itu BIOS (Basic Input Output System)?</p>
-                      <Button size="icon" variant="ghost" class="text-destructive hover:text-destructive">
-                        <Trash2 />
-                      </Button>
                     </div>
                   </CardContent>
                 </Card>
