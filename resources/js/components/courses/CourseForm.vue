@@ -152,7 +152,7 @@ const onSubmit = handleSubmit((values) => {
       <div class="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Gambar Sampul <span class="text-red-500">*</span></CardTitle>
+            <CardTitle>Gambar Sampul</CardTitle>
           </CardHeader>
           <CardContent>
             <label for="cover-image-input"

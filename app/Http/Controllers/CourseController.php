@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
+use App\Http\Requests\StoreRequest;
+use App\Http\Requests\UpdateRequest;
 
 class CourseController extends Controller
 {
@@ -33,16 +33,9 @@ class CourseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:courses,code',
-            'description' => 'nullable|string',
-            'cover_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
-
-        $validated['slug'] = Str::slug($validated['title']);
+        $validated = $request->validated();
 
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $request->file('cover_image')->store('courses', 'public');
@@ -76,16 +69,9 @@ class CourseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Course $course)
+    public function update(UpdateRequest $request, Course $course)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:courses,code,' . $course->id,
-            'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
-
-        $validated['slug'] = Str::slug($validated['title']);
+        $validated = $request->validated();
 
         if ($request->hasFile('cover_image')) {
             // Delete old image if exists
