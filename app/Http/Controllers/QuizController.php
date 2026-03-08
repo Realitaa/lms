@@ -17,11 +17,14 @@ class QuizController extends Controller
   {
     $validated = $request->validate([
       'title' => 'required|string|max:255',
+      'score' => 'required|integer|min:0|max:100',
+      'time_limit' => 'required|integer|min:1',
     ]);
 
     $module->quizzes()->create([
       'title' => $validated['title'],
-      'passing_score' => 0,
+      'passing_score' => $validated['score'],
+      'time_limit' => $validated['time_limit'],
     ]);
 
     return back()->with('success', 'Kuis berhasil ditambahkan');

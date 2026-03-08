@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { toTypedSchema } from '@vee-validate/zod';
 import { router } from '@inertiajs/vue3';
+import { useForm } from 'vee-validate';
 import { ref } from 'vue';
 import { toast } from 'vue-sonner';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,8 +14,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 const props = defineProps<{
   open: boolean;
@@ -23,20 +32,44 @@ const emit = defineEmits<{
   (e: 'update:open', value: boolean): void;
 }>();
 
-const title = ref('');
 const isSubmitting = ref(false);
 
-function onSubmit() {
-  if (!title.value.trim() || !props.moduleId) return;
+const formSchema = toTypedSchema(
+  z.object({
+    title: z.string().min(1, 'Judul wajib diisi').max(255),
+    score: z.coerce.number({
+      required_error: 'Skor kelulusan wajib diisi',
+      invalid_type_error: 'Skor harus berupa angka',
+    }).min(0, 'Skor minimal 0').max(100, 'Skor maksimal 100'),
+    time_limit: z.coerce.number({
+      required_error: 'Batas waktu wajib diisi',
+      invalid_type_error: 'Batas waktu harus berupa angka',
+    }).min(1, 'Batas waktu minimal 1 menit'),
+  }),
+);
+
+const { handleSubmit, resetForm } = useForm({
+  validationSchema: formSchema,
+  initialValues: {
+    title: '',
+    score: 0,
+    time_limit: 15,
+  },
+});
+
+const onSubmit = handleSubmit((values) => {
+  if (!props.moduleId) return;
 
   isSubmitting.value = true;
   router.post(`/courses/modules/${props.moduleId}/quizzes`, {
-    title: title.value,
+    title: values.title,
+    score: values.score,
+    time_limit: values.time_limit,
   }, {
     preserveScroll: true,
     onSuccess: () => {
       toast.success('Kuis berhasil ditambahkan');
-      title.value = '';
+      resetForm();
       emit('update:open', false);
     },
     onError: (errors) => {
@@ -46,7 +79,7 @@ function onSubmit() {
       isSubmitting.value = false;
     },
   });
-}
+});
 </script>
 
 <template>
@@ -55,21 +88,46 @@ function onSubmit() {
       <DialogHeader>
         <DialogTitle>Tambah Kuis</DialogTitle>
         <DialogDescription>
-          Masukkan judul kuis baru untuk modul ini.
+          Masukkan data kuis baru untuk modul ini.
         </DialogDescription>
       </DialogHeader>
 
-      <form @submit.prevent="onSubmit" class="space-y-4">
-        <div class="space-y-2">
-          <Label for="quiz-title">Judul Kuis</Label>
-          <Input id="quiz-title" v-model="title" placeholder="Masukkan judul kuis" autofocus />
-        </div>
+      <form @submit="onSubmit" class="space-y-4">
+        <FormField v-slot="{ componentField }" name="title">
+          <FormItem>
+            <FormLabel required>Judul Kuis</FormLabel>
+            <FormControl>
+              <Input type="text" placeholder="Masukkan judul kuis" v-bind="componentField" autofocus />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="score">
+          <FormItem>
+            <FormLabel required>Skor Kelulusan</FormLabel>
+            <FormControl>
+              <Input type="number" placeholder="Masukkan minimal skor kelulusan" v-bind="componentField" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="time_limit">
+          <FormItem>
+            <FormLabel required>Batas Waktu (menit)</FormLabel>
+            <FormControl>
+              <Input type="number" placeholder="Masukkan batas waktu" v-bind="componentField" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
 
         <DialogFooter>
           <Button type="button" variant="outline" @click="emit('update:open', false)">
             Batal
           </Button>
-          <Button type="submit" :disabled="isSubmitting || !title.trim()">
+          <Button type="submit" :disabled="isSubmitting">
             Tambah
           </Button>
         </DialogFooter>

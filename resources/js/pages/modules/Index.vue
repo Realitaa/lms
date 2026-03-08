@@ -277,7 +277,7 @@ function saveLessonContent() {
 
   isSavingLesson.value = true;
   router.put(`/courses/lessons/${currentLessonId.value}`, {
-    content: lessonEditorContent.value,
+    content: lessonEditorContent.value as any,
   }, {
     preserveScroll: true,
     onSuccess: () => {
@@ -384,7 +384,7 @@ function cancelEditQuestion() {
 function saveQuestion(question: Question) {
   isSavingQuestion.value = true;
   router.put(`/courses/questions/${question.id}`, {
-    question_text: questionEditorContent.value,
+    question_text: questionEditorContent.value as any,
   }, {
     preserveScroll: true,
     onSuccess: () => {
@@ -447,7 +447,7 @@ function cancelEditOption() {
 
 function saveOption(option: Option) {
   router.put(`/courses/options/${option.id}`, {
-    option_text: optionEditorContent.value,
+    option_text: optionEditorContent.value as any,
   }, {
     preserveScroll: true,
     onSuccess: () => {
