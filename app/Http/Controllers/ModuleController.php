@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Course;
+use App\Models\Module;
 
 class ModuleController extends Controller
 {
@@ -13,56 +14,81 @@ class ModuleController extends Controller
      */
     public function index(Course $course)
     {
+        $course->load([
+            'modules' => function ($query) {
+                $query->orderBy('order')->with([
+                    'lessons' => function ($q) {
+                        $q->orderBy('order');
+                    }
+                ]);
+            }
+        ]);
+
         return Inertia::render('modules/Index', [
             'course' => $course,
         ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Store a newly created module in a course.
      */
-    public function create()
+    public function store(Request $request, Course $course)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $maxOrder = $course->modules()->max('order') ?? -1;
+
+        $course->modules()->create([
+            'title' => $validated['title'],
+            'order' => $maxOrder + 1,
+        ]);
+
+        return back()->with('success', 'Modul berhasil ditambahkan');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Update the specified module.
      */
-    public function store(Request $request)
+    public function update(Request $request, Course $course, Module $module)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $module->update($validated);
+
+        return back()->with('success', 'Modul berhasil diperbarui');
     }
 
     /**
-     * Display the specified resource.
+     * Remove the specified module.
      */
-    public function show(string $id)
+    public function destroy(Course $course, Module $module)
     {
-        //
+        $module->delete();
+
+        return back()->with('success', 'Modul berhasil dihapus');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Reorder modules.
      */
-    public function edit(string $id)
+    public function reorder(Request $request, Course $course)
     {
-        //
-    }
+        $validated = $request->validate([
+            'modules' => 'required|array',
+            'modules.*.id' => 'required|integer|exists:modules,id',
+            'modules.*.order' => 'required|integer|min:0',
+        ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        foreach ($validated['modules'] as $item) {
+            Module::where('id', $item['id'])->update([
+                'order' => $item['order'],
+            ]);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return back()->with('success', 'Urutan modul berhasil diperbarui');
     }
 }
