@@ -30,12 +30,21 @@ class LessonController extends Controller
   }
 
   /**
-   * Update the specified lesson.
+   * Display the specified lesson.
+   */
+  public function show(Lesson $lesson)
+  {
+    return $lesson;
+  }
+
+  /**
+   * Update the specified lesson (title and/or content).
    */
   public function update(Request $request, Lesson $lesson)
   {
     $validated = $request->validate([
-      'title' => 'required|string|max:255',
+      'title' => 'sometimes|required|string|max:255',
+      'content' => 'sometimes|nullable|array',
     ]);
 
     $lesson->update($validated);

@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->foreignId('quiz_id')
                 ->constrained()
                 ->cascadeOnDelete();
-            $table->json('question_text'); // Support LaTeX
+            $table->json('question_text'); // Tiptap JSON
             $table->unsignedInteger('order')->default(0);
             $table->unsignedInteger('points')->default(1);
             $table->timestamps();

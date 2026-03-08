@@ -19,7 +19,14 @@ class ModuleController extends Controller
                 $query->orderBy('order')->with([
                     'lessons' => function ($q) {
                         $q->orderBy('order');
-                    }
+                    },
+                    'quizzes' => function ($q) {
+                        $q->with([
+                            'questions' => function ($qq) {
+                                $qq->orderBy('order')->with('options');
+                            }
+                        ]);
+                    },
                 ]);
             }
         ]);
