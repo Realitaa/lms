@@ -6,11 +6,13 @@ import Strike from '@tiptap/extension-strike'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import EditorToolbar from './EditorToolbar.vue'
 import { watch } from 'vue'
+import { cn } from '@/lib/utils'
 
 const props = defineProps<{
   config?: string[][]
   modelValue?: Record<string, unknown>
   htmlValue?: string
+  class?: string
 }>()
 
 const emit = defineEmits<{
@@ -32,7 +34,7 @@ const editor = useEditor({
 
   editorProps: {
     attributes: {
-      class: 'prose dark:prose-invert max-w-none min-h-[200px] max-h-[300px] overflow-y-auto focus:outline-none',
+      class: cn('prose dark:prose-invert max-w-none min-h-[200px] max-h-[300px] overflow-y-auto focus:outline-none', props.class),
     },
   },
 

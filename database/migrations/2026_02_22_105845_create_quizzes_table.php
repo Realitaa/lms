@@ -16,6 +16,7 @@ return new class extends Migration {
                 ->constrained()
                 ->cascadeOnDelete();
             $table->string('title');
+            $table->enum('type', ['pre', 'post'])->default('pre');
             $table->unsignedInteger('passing_score')->default(0);
             $table->unsignedInteger('time_limit')->nullable(); // menit
             $table->timestamps();

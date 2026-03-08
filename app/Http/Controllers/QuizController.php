@@ -19,12 +19,14 @@ class QuizController extends Controller
       'title' => 'required|string|max:255',
       'score' => 'required|integer|min:0|max:100',
       'time_limit' => 'required|integer|min:1',
+      'type' => 'required|in:pre,post',
     ]);
 
     $module->quizzes()->create([
       'title' => $validated['title'],
       'passing_score' => $validated['score'],
       'time_limit' => $validated['time_limit'],
+      'type' => $validated['type'],
     ]);
 
     return back()->with('success', 'Kuis berhasil ditambahkan');
@@ -39,6 +41,7 @@ class QuizController extends Controller
       'title' => 'sometimes|required|string|max:255',
       'passing_score' => 'sometimes|integer|min:0',
       'time_limit' => 'sometimes|nullable|integer|min:1',
+      'type' => 'sometimes|in:pre,post',
     ]);
 
     $quiz->update($validated);
@@ -66,11 +69,9 @@ class QuizController extends Controller
       'points' => 'sometimes|integer|min:1',
     ]);
 
-    $maxOrder = $quiz->questions()->max('order') ?? -1;
 
     $question = $quiz->questions()->create([
       'question_text' => $validated['question_text'],
-      'order' => $maxOrder + 1,
       'points' => $validated['points'] ?? 1,
     ]);
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
 import { Plus, ChevronDown, ChevronUp, Pencil, Check, X, Trash2, GripVertical, Save } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { toast } from 'vue-sonner';
 import { VueDraggable } from 'vue-draggable-plus';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -70,6 +70,38 @@ function displayControl() {
 
 // --- Modules data (reactive copy from props) ---
 const modules = computed(() => props.course.modules ?? []);
+
+// --- Watch for props changes to re-sync currentQuiz ---
+// This is critical: when Inertia refreshes props after adding/deleting questions,
+// the currentQuiz ref still holds stale data. This watcher re-syncs it.
+watch(modules, (newModules) => {
+  if (currentQuiz.value) {
+    const quizId = currentQuiz.value.id;
+    for (const mod of newModules) {
+      const found = mod.quizzes.find(q => q.id === quizId);
+      if (found) {
+        currentQuiz.value = found;
+        // Clamp question index if questions were deleted
+        if (currentQuestionIndex.value >= found.questions.length) {
+          currentQuestionIndex.value = Math.max(0, found.questions.length - 1);
+        }
+        return;
+      }
+    }
+    // Quiz was deleted
+    currentQuiz.value = null;
+    displayControl();
+  }
+
+  // Also re-sync currentLessonId for lesson editor
+  if (currentLessonId.value) {
+    const lesson = findLessonById(currentLessonId.value);
+    if (!lesson) {
+      currentLessonId.value = null;
+      displayControl();
+    }
+  }
+}, { deep: true });
 
 // --- Collapsed state per module ---
 const collapsedModules = ref<Record<number, boolean>>({});
@@ -353,16 +385,12 @@ function addQuestion() {
   const emptyContent = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Soal baru' }] }] };
 
   router.post(`/courses/quizzes/${currentQuiz.value.id}/questions`, {
-    question_text: emptyContent,
+    question_text: emptyContent as any,
     points: 1,
   }, {
     preserveScroll: true,
     onSuccess: () => {
       toast.success('Soal berhasil ditambahkan');
-      // Switch to last question after reload
-      if (currentQuiz.value) {
-        currentQuestionIndex.value = currentQuiz.value.questions.length; // will be the new last after reload
-      }
     },
     onError: (errors) => {
       toast.error(`Gagal menambahkan soal: ${Object.values(errors)[0]}`);
@@ -421,7 +449,7 @@ function addOption() {
   const emptyContent = { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Opsi baru' }] }] };
 
   router.post(`/courses/questions/${currentQuestion.value.id}/options`, {
-    option_text: emptyContent,
+    option_text: emptyContent as any,
     is_correct: false,
   }, {
     preserveScroll: true,
@@ -529,15 +557,24 @@ function tiptapToText(json: Record<string, unknown>): string {
     return '';
   }
 }
+
+// Helper: split quizzes by type (pre/post)
+function preQuizzes(mod: Module): Quiz[] {
+  return (mod.quizzes ?? []).filter(q => q.type === 'pre');
+}
+
+function postQuizzes(mod: Module): Quiz[] {
+  return (mod.quizzes ?? []).filter(q => q.type === 'post');
+}
 </script>
 
 <template>
 
-  <Head :title="`Manajemen Modul ${course.title}`" />
+  <Head :title="`Manajemen Kursus ${course.title}`" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex flex-col gap-6 p-4">
-      <TitleWithBack back-url="/courses" :title="`Manajemen Modul ${course.title}${titleUserActivity}`"
+      <TitleWithBack back-url="/courses" :title="`Manajemen Kursus ${course.title}${titleUserActivity}`"
         :subtitle="subtitleUserActivity" />
     </div>
 
@@ -677,13 +714,17 @@ function tiptapToText(json: Record<string, unknown>): string {
             <div class="h-1/2">
               <template v-if="editingQuestionId">
                 <p class="text-xs text-muted-foreground mb-1">Mengedit soal:</p>
-                <RichTextEditor :config="[['undoRedo'], ['bold', 'italic', 'underline', 'strike']]"
+                <RichTextEditor 
+                  class="min-h-25 max-h-[18.5vh]"
+                  :config="[['undoRedo'], ['bold', 'italic', 'underline', 'strike']]"
                   :model-value="questionEditorContent"
                   @update:model-value="(v: Record<string, unknown>) => questionEditorContent = v" />
               </template>
               <template v-else-if="editingOptionId">
                 <p class="text-xs text-muted-foreground mb-1">Mengedit opsi:</p>
-                <RichTextEditor :config="[['undoRedo'], ['bold', 'italic', 'underline', 'strike']]"
+                <RichTextEditor 
+                  class="min-h-25 max-h-[18.5vh]"
+                  :config="[['undoRedo'], ['bold', 'italic', 'underline', 'strike']]"
                   :model-value="optionEditorContent"
                   @update:model-value="(v: Record<string, unknown>) => optionEditorContent = v" />
               </template>
@@ -713,7 +754,8 @@ function tiptapToText(json: Record<string, unknown>): string {
           <CardTitle>Modul dan Materi</CardTitle>
           <CardDescription>
             <span v-if="isControl">Drag & Drop untuk reposisi materi atau modul. Entri putih adalah materi, <span
-                class="text-blue-700 dark:text-blue-400">entri biru</span> adalah kuis.</span>
+                class="text-blue-700 dark:text-blue-400">entri biru</span> adalah pre-test, <span
+                class="text-orange-700 dark:text-orange-400">entri oranye</span> adalah post-test.</span>
             <span v-else>Klik tombol pensil untuk mengatur modul</span>
           </CardDescription>
           <CardAction>
@@ -771,6 +813,20 @@ function tiptapToText(json: Record<string, unknown>): string {
                 </CardHeader>
 
                 <CardContent class="px-0" v-show="!collapsedModules[mod.id]">
+                  <!-- Pre-test quizzes (on top, blue) -->
+                  <div v-for="quiz in preQuizzes(mod)" :key="`quiz-pre-${quiz.id}`"
+                    class="flex items-center justify-between border-b py-2 gap-2 bg-blue-50 dark:bg-blue-950/30 px-2 rounded">
+                    <p class="font-bold text-sm flex-1 text-blue-700 dark:text-blue-400 hover:underline hover:cursor-pointer"
+                      @click="displayQuiz(quiz)">
+                      {{ quiz.title }}
+                    </p>
+                    <div class="flex items-center gap-0.5 shrink-0">
+                      <Button size="icon" variant="ghost" class="h-7 w-7" @click="deleteQuiz(quiz)">
+                        <Trash2 class="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+
                   <!-- Draggable lesson list -->
                   <VueDraggable v-model="mod.lessons" :animation="200" handle=".lesson-drag-handle"
                     :group="{ name: 'lessons' }" @end="onLessonDragEnd(mod)" class="min-h-[2rem]">
@@ -805,10 +861,10 @@ function tiptapToText(json: Record<string, unknown>): string {
                     </div>
                   </VueDraggable>
 
-                  <!-- Quiz entries (blue) -->
-                  <div v-for="quiz in mod.quizzes" :key="`quiz-${quiz.id}`"
-                    class="flex items-center justify-between border-b py-2 gap-2 bg-blue-50 dark:bg-blue-950/30 px-2 rounded">
-                    <p class="font-bold text-sm flex-1 text-blue-700 dark:text-blue-400 hover:underline hover:cursor-pointer"
+                  <!-- Post-test quizzes (on bottom, orange) -->
+                  <div v-for="quiz in postQuizzes(mod)" :key="`quiz-post-${quiz.id}`"
+                    class="flex items-center justify-between border-b py-2 gap-2 bg-orange-50 dark:bg-orange-950/30 px-2 rounded">
+                    <p class="font-bold text-sm flex-1 text-orange-700 dark:text-orange-400 hover:underline hover:cursor-pointer"
                       @click="displayQuiz(quiz)">
                       {{ quiz.title }}
                     </p>
@@ -854,10 +910,18 @@ function tiptapToText(json: Record<string, unknown>): string {
                         {{ lesson.title }}
                       </p>
                     </div>
-                    <!-- Quiz entries in read-only mode -->
-                    <div v-for="quiz in mod.quizzes" :key="`quiz-${quiz.id}`"
+                    <!-- Pre-test quizzes (read-only) -->
+                    <div v-for="quiz in preQuizzes(mod)" :key="`quiz-pre-${quiz.id}`"
                       class="flex justify-between border-b py-2">
                       <p class="font-bold text-sm text-blue-700 dark:text-blue-400 hover:underline hover:cursor-pointer"
+                        @click="displayQuiz(quiz)" :class="currentQuiz?.id === quiz.id ? 'underline' : ''">
+                        {{ quiz.title }}
+                      </p>
+                    </div>
+                    <!-- Post-test quizzes (read-only) -->
+                    <div v-for="quiz in postQuizzes(mod)" :key="`quiz-post-${quiz.id}`"
+                      class="flex justify-between border-b py-2">
+                      <p class="font-bold text-sm text-orange-700 dark:text-orange-400 hover:underline hover:cursor-pointer"
                         @click="displayQuiz(quiz)" :class="currentQuiz?.id === quiz.id ? 'underline' : ''">
                         {{ quiz.title }}
                       </p>

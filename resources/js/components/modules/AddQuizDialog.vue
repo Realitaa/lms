@@ -22,6 +22,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 const props = defineProps<{
   open: boolean;
@@ -45,6 +52,7 @@ const formSchema = toTypedSchema(
       required_error: 'Batas waktu wajib diisi',
       invalid_type_error: 'Batas waktu harus berupa angka',
     }).min(1, 'Batas waktu minimal 1 menit'),
+    type: z.enum(['pre', 'post']),
   }),
 );
 
@@ -54,6 +62,7 @@ const { handleSubmit, resetForm } = useForm({
     title: '',
     score: 0,
     time_limit: 15,
+    type: 'pre',
   },
 });
 
@@ -65,6 +74,7 @@ const onSubmit = handleSubmit((values) => {
     title: values.title,
     score: values.score,
     time_limit: values.time_limit,
+    type: values.type,
   }, {
     preserveScroll: true,
     onSuccess: () => {
@@ -118,6 +128,24 @@ const onSubmit = handleSubmit((values) => {
             <FormLabel required>Batas Waktu (menit)</FormLabel>
             <FormControl>
               <Input type="number" placeholder="Masukkan batas waktu" v-bind="componentField" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
+        <FormField v-slot="{ componentField }" name="type">
+          <FormItem>
+            <FormLabel required>Tipe Kuis</FormLabel>
+            <FormControl>
+              <Select v-bind="componentField">
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih tipe kuis" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pre">Pre-Test</SelectItem>
+                  <SelectItem value="post">Post-Test</SelectItem>
+                </SelectContent>
+              </Select>
             </FormControl>
             <FormMessage />
           </FormItem>

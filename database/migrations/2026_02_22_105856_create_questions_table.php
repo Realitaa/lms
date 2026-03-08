@@ -16,7 +16,6 @@ return new class extends Migration {
                 ->constrained()
                 ->cascadeOnDelete();
             $table->json('question_text'); // Tiptap JSON
-            $table->unsignedInteger('order')->default(0);
             $table->unsignedInteger('points')->default(1);
             $table->timestamps();
         });
