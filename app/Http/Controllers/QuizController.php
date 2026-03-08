@@ -113,6 +113,10 @@ class QuizController extends Controller
       'is_correct' => 'sometimes|boolean',
     ]);
 
+    if ($validated['is_correct'] ?? false) {
+      $question->options()->update(['is_correct' => false]);
+    }
+
     $question->options()->create([
       'option_text' => $validated['option_text'],
       'is_correct' => $validated['is_correct'] ?? false,
@@ -130,6 +134,12 @@ class QuizController extends Controller
       'option_text' => 'sometimes|required|array',
       'is_correct' => 'sometimes|boolean',
     ]);
+
+    if ($validated['is_correct'] ?? false) {
+      Option::where('question_id', $option->question_id)
+        ->where('id', '!=', $option->id)
+        ->update(['is_correct' => false]);
+    }
 
     $option->update($validated);
 
