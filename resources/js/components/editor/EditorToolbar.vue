@@ -3,6 +3,7 @@ import type { Editor } from '@tiptap/core'
 import type { Component } from 'vue'
 
 import AddImage from './button/AddImage.vue'
+import AddYoutube from './button/AddYoutube.vue'
 import UndoRedo from './button/UndoRedo.vue'
 import { Left, Center, Right, Justify } from './toggle/align'
 import { Bold, Italic, Underline, Strike } from './toggle/format'
@@ -20,7 +21,7 @@ withDefaults(defineProps<{
     ['bold', 'italic', 'underline', 'strike'],
     ['bullet', 'ordered'],
     ['left', 'center', 'right', 'justify'],
-    ['image']
+    ['image', 'youtube']
   ]
 })
 
@@ -30,7 +31,7 @@ const componentMap: Record<string, Component> = {
   bold: Bold, italic: Italic, underline: Underline, strike: Strike,
   bullet: Bullet, ordered: Ordered,
   left: Left, center: Center, right: Right, justify: Justify,
-  image: AddImage
+  image: AddImage, youtube: AddYoutube
 }
 </script>
 

@@ -6,6 +6,7 @@ import Strike from '@tiptap/extension-strike'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import EditorToolbar from './EditorToolbar.vue'
 import Image from '@tiptap/extension-image'
+import Youtube from '@tiptap/extension-youtube'
 import { watch } from 'vue'
 import { cn } from '@/lib/utils'
 
@@ -27,6 +28,10 @@ const editor = useEditor({
     Underline,
     Strike,
     Image,
+    Youtube.configure({
+      controls: false,
+      nocookie: true,
+    }),
     TextAlign.configure({
       types: ['heading', 'paragraph'],
     }),
