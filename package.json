@@ -36,6 +36,7 @@
         "@tanstack/vue-table": "^8.21.3",
         "@tiptap/extension-color": "^3.20.1",
         "@tiptap/extension-heading": "^3.20.1",
+        "@tiptap/extension-image": "^3.20.1",
         "@tiptap/extension-list": "^3.20.1",
         "@tiptap/extension-strike": "^3.20.1",
         "@tiptap/extension-text-align": "^3.20.1",

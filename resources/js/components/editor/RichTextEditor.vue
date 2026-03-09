@@ -5,6 +5,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Strike from '@tiptap/extension-strike'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import EditorToolbar from './EditorToolbar.vue'
+import Image from '@tiptap/extension-image'
 import { watch } from 'vue'
 import { cn } from '@/lib/utils'
 
@@ -25,6 +26,7 @@ const editor = useEditor({
     StarterKit,
     Underline,
     Strike,
+    Image,
     TextAlign.configure({
       types: ['heading', 'paragraph'],
     }),
@@ -34,7 +36,7 @@ const editor = useEditor({
 
   editorProps: {
     attributes: {
-      class: cn('prose dark:prose-invert max-w-none min-h-[200px] max-h-[300px] overflow-y-auto focus:outline-none', props.class),
+      class: cn('prose dark:prose-invert max-w-none min-h-[200px] max-h-[300px] my-4 ml-4 pr-4 overflow-y-auto focus:outline-none', props.class),
     },
   },
 
@@ -67,7 +69,7 @@ watch(() => props.modelValue, (newVal) => {
       <EditorToolbar :editor="editor" :config="config ?? undefined" />
     </div>
 
-    <div class="p-4 cursor-text" @click="editor.commands.focus()">
+    <div class="cursor-text" @click="editor.commands.focus()">
       <EditorContent :editor="editor" />
     </div>
 

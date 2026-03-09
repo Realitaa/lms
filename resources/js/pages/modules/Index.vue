@@ -307,9 +307,13 @@ function onLessonHtmlUpdate(html: string) {
 function saveLessonContent() {
   if (!currentLessonId.value) return;
 
+  // Extract temp image paths from the TipTap JSON content
+  const tempImages = extractTempImagePaths(lessonEditorContent.value);
+
   isSavingLesson.value = true;
   router.put(`/courses/lessons/${currentLessonId.value}`, {
     content: lessonEditorContent.value as any,
+    temp_images: tempImages,
   }, {
     preserveScroll: true,
     onSuccess: () => {
@@ -323,6 +327,40 @@ function saveLessonContent() {
       isSavingLesson.value = false;
     },
   });
+}
+
+/**
+ * Recursively scan TipTap JSON for image nodes with temp upload URLs.
+ * Returns an array of relative storage paths (e.g., 'uploads/tmp/uuid_filename.jpg').
+ */
+function extractTempImagePaths(json: Record<string, unknown>): string[] {
+  const paths: string[] = [];
+
+  function walk(node: Record<string, unknown>) {
+    if (node.type === 'image' && typeof node.attrs === 'object' && node.attrs !== null) {
+      const attrs = node.attrs as Record<string, unknown>;
+      const src = typeof attrs.src === 'string' ? attrs.src : '';
+      if (src.includes('/uploads/tmp/')) {
+        // Extract the relative path: everything after '/storage/'
+        const match = src.match(/\/storage\/(.+)$/);
+        if (match) {
+          paths.push(match[1]);
+        }
+      }
+    }
+
+    if (Array.isArray(node.content)) {
+      for (const child of node.content) {
+        walk(child as Record<string, unknown>);
+      }
+    }
+  }
+
+  if (json && typeof json === 'object') {
+    walk(json);
+  }
+
+  return paths;
 }
 
 function cancelLessonEdit() {
@@ -609,12 +647,11 @@ function postQuizzes(mod: Module): Quiz[] {
           <TabsContent value="editor">
             <!-- edit content of lesson -->
             <RichTextEditor :model-value="lessonEditorContent" @update:model-value="onLessonEditorUpdate"
-              @update:html-value="onLessonHtmlUpdate" />
+              @update:html-value="onLessonHtmlUpdate" class="min-h-125 max-h-125" />
           </TabsContent>
           <TabsContent value="preview">
             <!-- preview of lesson content as HTML -->
-            <div class="prose dark:prose-invert max-w-none p-4 border rounded-xl min-h-[200px]"
-              v-html="lessonHtmlContent"></div>
+            <div class="prose dark:prose-invert max-w-none p-4" v-html="lessonHtmlContent"></div>
           </TabsContent>
         </Tabs>
       </div>
@@ -714,18 +751,15 @@ function postQuizzes(mod: Module): Quiz[] {
             <div class="h-1/2">
               <template v-if="editingQuestionId">
                 <p class="text-xs text-muted-foreground mb-1">Mengedit soal:</p>
-                <RichTextEditor 
-                  class="min-h-25 max-h-[18.5vh]"
+                <RichTextEditor class="min-h-25 max-h-[18.5vh]"
                   :config="[['undoRedo'], ['bold', 'italic', 'underline', 'strike']]"
                   :model-value="questionEditorContent"
                   @update:model-value="(v: Record<string, unknown>) => questionEditorContent = v" />
               </template>
               <template v-else-if="editingOptionId">
                 <p class="text-xs text-muted-foreground mb-1">Mengedit opsi:</p>
-                <RichTextEditor 
-                  class="min-h-25 max-h-[18.5vh]"
-                  :config="[['undoRedo'], ['bold', 'italic', 'underline', 'strike']]"
-                  :model-value="optionEditorContent"
+                <RichTextEditor class="min-h-25 max-h-[18.5vh]"
+                  :config="[['undoRedo'], ['bold', 'italic', 'underline', 'strike']]" :model-value="optionEditorContent"
                   @update:model-value="(v: Record<string, unknown>) => optionEditorContent = v" />
               </template>
               <template v-else>
@@ -831,7 +865,7 @@ function postQuizzes(mod: Module): Quiz[] {
                   <VueDraggable v-model="mod.lessons" :animation="200" handle=".lesson-drag-handle"
                     :group="{ name: 'lessons' }" @end="onLessonDragEnd(mod)" class="min-h-[2rem]">
                     <div v-for="lesson in mod.lessons" :key="lesson.id"
-                      class="flex items-center justify-between border-b py-2 gap-2">
+                      class="flex items-center justify-between border-b py-2 pr-2 gap-2">
                       <GripVertical class="h-3.5 w-3.5 shrink-0 cursor-grab text-muted-foreground lesson-drag-handle" />
 
                       <!-- Inline edit lesson -->

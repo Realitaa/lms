@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -9,6 +10,10 @@ Route::inertia('/', 'Welcome', [
 
 Route::middleware(['auth'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+
+    // Upload routes
+    Route::post('/uploads/image', [UploadController::class, 'upload'])->name('uploads.image');
+    Route::post('/uploads/confirm', [UploadController::class, 'confirmUploads'])->name('uploads.confirm');
 });
 
 require __DIR__ . '/users.php';
