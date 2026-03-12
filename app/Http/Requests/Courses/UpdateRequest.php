@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Courses;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Str;
 
 class UpdateRequest extends FormRequest
 {
@@ -43,10 +42,4 @@ class UpdateRequest extends FormRequest
         return require __DIR__ . '/messages.php';
     }
 
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            'slug' => Str::slug($this->title),
-        ]);
-    }
 }

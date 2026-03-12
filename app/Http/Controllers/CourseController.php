@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use App\Http\Requests\StoreRequest;
-use App\Http\Requests\UpdateRequest;
+use App\Http\Requests\Courses\StoreRequest;
+use App\Http\Requests\Courses\UpdateRequest;
+use Illuminate\Support\Str;
 
 class CourseController extends Controller
 {
@@ -36,6 +37,8 @@ class CourseController extends Controller
     public function store(StoreRequest $request)
     {
         $validated = $request->validated();
+
+        $validated['slug'] = Str::slug($validated['title']);
 
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $request->file('cover_image')->store('courses', 'public');
@@ -72,6 +75,10 @@ class CourseController extends Controller
     public function update(UpdateRequest $request, Course $course)
     {
         $validated = $request->validated();
+
+        if (isset($validated['title']) && $validated['title'] !== $course->title) {
+            $validated['slug'] = Str::slug($validated['title']);
+        }
 
         if ($request->hasFile('cover_image')) {
             // Delete old image if exists
