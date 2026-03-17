@@ -136,35 +136,3 @@ watch(
         />
     </div>
 </template>
-
-<style>
-:root {
-    color-scheme: light dark;
-    --tiptap-math-hover: light-dark(
-        var(--color-slate-200),
-        var(--color-slate-800)
-    );
-}
-
-.tiptap:focus {
-    outline: none;
-}
-
-.tiptap-mathematics-render[data-type='block-math'] {
-    text-align: center;
-}
-
-.tiptap-mathematics-render[data-type='block-math']:hover {
-    background-color: var(--tiptap-math-hover);
-    cursor: pointer;
-}
-
-.tiptap-mathematics-render[data-type='inline-math'] {
-    margin-right: 2px;
-}
-
-.tiptap-mathematics-render[data-type='inline-math']:hover {
-    background-color: var(--tiptap-math-hover);
-    cursor: pointer;
-}
-</style>

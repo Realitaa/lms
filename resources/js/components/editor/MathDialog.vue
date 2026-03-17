@@ -116,7 +116,12 @@ watch(
                     <label class="text-sm font-medium"> Pratinjau </label>
 
                     <div
-                        class="flex min-h-16 items-center justify-center rounded-xl border bg-muted/30 p-4"
+                        :class="{
+                            'flex min-h-16 items-center justify-center rounded-xl border bg-muted/30 p-4':
+                                isBlock,
+                            'flex min-h-16 items-center justify-start rounded-xl border bg-muted/30 p-4':
+                                !isBlock,
+                        }"
                         v-html="preview"
                     />
                 </div>
