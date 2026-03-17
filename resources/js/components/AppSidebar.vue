@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { LayoutGrid, Users } from 'lucide-vue-next';
+import { LayoutGrid, Users, MessagesSquare } from 'lucide-vue-next';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
@@ -34,6 +34,11 @@ const mainNavItems: NavItem[] = [
         title: 'Manajemen Kursus',
         href: courses.index(),
         icon: HugeIconsCourse,
+    },
+    {
+        title: 'Forum Diskusi',
+        href: '#',
+        icon: MessagesSquare,
     }
 ];
 </script>

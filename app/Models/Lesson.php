@@ -28,4 +28,9 @@ class Lesson extends Model
     {
         return $this->belongsTo(Module::class);
     }
+
+    public function threads()
+    {
+        return $this->hasMany(DiscussionThread::class);
+    }
 }
