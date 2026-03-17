@@ -1,4 +1,3 @@
-```vue resources/js/components/modules/QuizView.vue
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
@@ -23,6 +22,12 @@ const questionEditorContent = ref<Record<string, unknown>>({});
 const isSavingQuestion = ref(false);
 const editingOptionId = ref<number | null>(null);
 const optionEditorContent = ref<Record<string, unknown>>({});
+const editorFeature = [
+    ['undoRedo'],
+    ['bold', 'italic', 'underline', 'strike'],
+    ['bullet', 'ordered'],
+    ['image', 'youtube', 'math'],
+];
 
 // Computed current question
 const currentQuestion = computed<Question | null>(() => {
@@ -425,10 +430,7 @@ function deleteQuiz() {
                     </p>
                     <RichTextEditor
                         class="max-h-[18.5vh] min-h-25"
-                        :config="[
-                            ['undoRedo'],
-                            ['bold', 'italic', 'underline', 'strike'],
-                        ]"
+                        :config="editorFeature"
                         :model-value="questionEditorContent"
                         @update:model-value="
                             (v: Record<string, unknown>) =>
@@ -442,10 +444,7 @@ function deleteQuiz() {
                     </p>
                     <RichTextEditor
                         class="max-h-[18.5vh] min-h-25"
-                        :config="[
-                            ['undoRedo'],
-                            ['bold', 'italic', 'underline', 'strike'],
-                        ]"
+                        :config="editorFeature"
                         :model-value="optionEditorContent"
                         @update:model-value="
                             (v: Record<string, unknown>) =>

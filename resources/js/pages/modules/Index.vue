@@ -10,6 +10,7 @@ import TitleWithBack from '@/components/TitleWithBack.vue';
 import AddModuleDialog from '@/components/modules/AddModuleDialog.vue';
 import AddLessonDialog from '@/components/modules/AddLessonDialog.vue';
 import AddQuizDialog from '@/components/modules/AddQuizDialog.vue';
+import type { QuizablePayload } from '@/components/modules/ControlCard.vue';
 import DeleteLessonDialog from '@/components/modules/DeleteLessonDialog.vue';
 import DeleteModuleDialog from '@/components/modules/DeleteModuleDialog.vue';
 import RichTextEditor from '@/components/editor/RichTextEditor.vue';
@@ -57,19 +58,33 @@ function displayControl() {
 const modules = computed(() => props.course.modules ?? []);
 
 // --- Watch for props changes to re-sync currentQuiz and currentLessonId ---
+// Helper: find a quiz across all levels (course, module, lesson)
+function findQuizById(quizId: number): Quiz | undefined {
+    // Search course-level quizzes
+    const courseQuizzes = props.course.quizzes ?? [];
+    const courseMatch = courseQuizzes.find((q) => q.id === quizId);
+    if (courseMatch) return courseMatch;
+
+    // Search module-level and lesson-level quizzes
+    for (const mod of modules.value) {
+        const modMatch = (mod.quizzes ?? []).find((q) => q.id === quizId);
+        if (modMatch) return modMatch;
+
+        for (const lesson of mod.lessons) {
+            const lessonMatch = (lesson.quizzes ?? []).find(
+                (q) => q.id === quizId,
+            );
+            if (lessonMatch) return lessonMatch;
+        }
+    }
+    return undefined;
+}
+
 watch(
-    modules,
-    (newModules) => {
+    () => props.course,
+    () => {
         if (currentQuiz.value) {
-            const quizId = currentQuiz.value.id;
-            let foundQuiz: Quiz | undefined;
-            for (const mod of newModules) {
-                const found = mod.quizzes.find((q) => q.id === quizId);
-                if (found) {
-                    foundQuiz = found;
-                    break;
-                }
-            }
+            const foundQuiz = findQuizById(currentQuiz.value.id);
             if (foundQuiz) {
                 currentQuiz.value = foundQuiz;
             } else {
@@ -105,10 +120,10 @@ function openAddLessonDialog(moduleId: number) {
 
 // --- Add Quiz Dialog ---
 const addQuizDialogOpen = ref(false);
-const addQuizModuleId = ref<number | null>(null);
+const addQuizPayload = ref<QuizablePayload>({ type: 'module', id: 0 });
 
-function openAddQuizDialog(moduleId: number) {
-    addQuizModuleId.value = moduleId;
+function openAddQuizDialog(payload: QuizablePayload) {
+    addQuizPayload.value = payload;
     addQuizDialogOpen.value = true;
 }
 
@@ -150,6 +165,7 @@ function findLessonById(lessonId: number): Lesson | undefined {
 function displayModule(lessonId: number) {
     const lesson = findLessonById(lessonId);
     if (!lesson) return;
+    display.value = 'editor';
 
     currentLessonId.value = lessonId;
     currentQuiz.value = null;
@@ -401,7 +417,8 @@ const subtitleUserActivity = computed(() => {
         />
         <AddQuizDialog
             v-model:open="addQuizDialogOpen"
-            :module-id="addQuizModuleId"
+            :quizable-type="addQuizPayload.type"
+            :quizable-id="addQuizPayload.id"
         />
         <DeleteLessonDialog
             v-model:open="deleteLessonDialogOpen"

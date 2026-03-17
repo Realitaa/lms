@@ -23,7 +23,9 @@ Route::group(['prefix' => 'courses', 'middleware' => ['auth', 'role:admin,editor
   Route::post('/{course}/lessons/reorder', [LessonController::class, 'reorder'])->name('courses.lessons.reorder');
 
   // Quiz routes
-  Route::post('/modules/{module}/quizzes', [QuizController::class, 'store'])->name('modules.quizzes.store');
+  Route::post('/modules/{module}/quizzes', [QuizController::class, 'storeForModule'])->name('modules.quizzes.store');
+  Route::post('/lessons/{lesson}/quizzes', [QuizController::class, 'storeForLesson'])->name('lessons.quizzes.store');
+  Route::post('/{course}/quizzes', [QuizController::class, 'storeForCourse'])->name('courses.quizzes.store');
   Route::put('/quizzes/{quiz}', [QuizController::class, 'update'])->name('quizzes.update');
   Route::delete('/quizzes/{quiz}', [QuizController::class, 'destroy'])->name('quizzes.destroy');
 

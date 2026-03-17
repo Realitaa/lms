@@ -15,10 +15,25 @@ class ModuleController extends Controller
     public function index(Course $course)
     {
         $course->load([
+            'quizzes' => function ($q) {
+                $q->with([
+                    'questions' => function ($qq) {
+                        $qq->orderBy('order')->with('options');
+                    }
+                ]);
+            },
             'modules' => function ($query) {
                 $query->orderBy('order')->with([
                     'lessons' => function ($q) {
-                        $q->orderBy('order');
+                        $q->orderBy('order')->with([
+                            'quizzes' => function ($qq) {
+                                $qq->with([
+                                    'questions' => function ($qqq) {
+                                        $qqq->orderBy('order')->with('options');
+                                    }
+                                ]);
+                            }
+                        ]);
                     },
                     'quizzes' => function ($q) {
                         $q->with([

@@ -26,6 +26,8 @@ import {
 } from '@/components/ui/card';
 import type { Course, Module, Lesson, Quiz } from '@/types';
 
+export type QuizablePayload = { type: 'course' | 'module' | 'lesson'; id: number };
+
 const props = defineProps<{
     course: Course;
     isControl: boolean;
@@ -39,7 +41,7 @@ const emit = defineEmits<{
     (e: 'display-quiz', quiz: Quiz): void;
     (e: 'open-add-module'): void;
     (e: 'open-add-lesson', moduleId: number): void;
-    (e: 'open-add-quiz', moduleId: number): void;
+    (e: 'open-add-quiz', payload: QuizablePayload): void;
     (e: 'open-delete-module', module: Module): void;
     (e: 'open-delete-lesson', lesson: Lesson): void;
     (e: 'delete-quiz', quiz: Quiz): void;
@@ -185,6 +187,22 @@ function preQuizzes(mod: Module): Quiz[] {
 function postQuizzes(mod: Module): Quiz[] {
     return (mod.quizzes ?? []).filter((q) => q.type === 'post');
 }
+
+// Helper: lesson quizzes
+function lessonQuizzes(lesson: Lesson): Quiz[] {
+    return lesson.quizzes ?? [];
+}
+
+// Helper: course-level quizzes
+const coursePreQuizzes = computed(() =>
+    (props.course.quizzes ?? []).filter((q) => q.type === 'pre'),
+);
+const coursePostQuizzes = computed(() =>
+    (props.course.quizzes ?? []).filter((q) => q.type === 'post'),
+);
+const hasCourseQuizzes = computed(() =>
+    (props.course.quizzes ?? []).length > 0,
+);
 </script>
 
 <template>
@@ -205,7 +223,11 @@ function postQuizzes(mod: Module): Quiz[] {
                     <span class="text-orange-700 dark:text-orange-400"
                         >entri oranye</span
                     >
-                    adalah post-test.</span
+                    adalah post-test,
+                    <span class="text-green-700 dark:text-green-400"
+                        >entri hijau</span
+                    >
+                    adalah kuis materi.</span
                 >
                 <span v-else>Klik tombol pensil untuk mengatur modul</span>
             </CardDescription>
@@ -230,6 +252,113 @@ function postQuizzes(mod: Module): Quiz[] {
         </CardHeader>
         <CardContent class="flex-1 overflow-hidden px-0">
             <ScrollArea class="h-full pr-3">
+                <!-- =============================== -->
+                <!-- COURSE-LEVEL QUIZZES (top)      -->
+                <!-- =============================== -->
+                <template v-if="isControl">
+                    <!-- Course pre-test quizzes -->
+                    <div
+                        v-for="quiz in coursePreQuizzes"
+                        :key="`course-quiz-pre-${quiz.id}`"
+                        class="flex items-center justify-between gap-2 rounded border-b bg-blue-50 px-2 py-2 dark:bg-blue-950/30"
+                    >
+                        <p
+                            class="flex-1 text-sm font-bold text-blue-700 hover:cursor-pointer hover:underline dark:text-blue-400"
+                            @click="$emit('display-quiz', quiz)"
+                        >
+                            {{ quiz.title }}
+                            <span class="text-xs font-normal opacity-60">(Kursus)</span>
+                        </p>
+                        <div class="flex shrink-0 items-center gap-0.5">
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                class="h-7 w-7"
+                                @click="$emit('delete-quiz', quiz)"
+                            >
+                                <Trash2
+                                    class="h-3 w-3 text-destructive"
+                                />
+                            </Button>
+                        </div>
+                    </div>
+
+                    <!-- Course post-test quizzes -->
+                    <div
+                        v-for="quiz in coursePostQuizzes"
+                        :key="`course-quiz-post-${quiz.id}`"
+                        class="flex items-center justify-between gap-2 rounded border-b bg-orange-50 px-2 py-2 dark:bg-orange-950/30"
+                    >
+                        <p
+                            class="flex-1 text-sm font-bold text-orange-700 hover:cursor-pointer hover:underline dark:text-orange-400"
+                            @click="$emit('display-quiz', quiz)"
+                        >
+                            {{ quiz.title }}
+                            <span class="text-xs font-normal opacity-60">(Kursus)</span>
+                        </p>
+                        <div class="flex shrink-0 items-center gap-0.5">
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                class="h-7 w-7"
+                                @click="$emit('delete-quiz', quiz)"
+                            >
+                                <Trash2
+                                    class="h-3 w-3 text-destructive"
+                                />
+                            </Button>
+                        </div>
+                    </div>
+
+                    <!-- Add course-level quiz button -->
+                    <div class="mb-2 flex gap-4" v-if="isControl">
+                        <Button
+                            variant="link"
+                            class="p-0! text-xs"
+                            @click="$emit('open-add-quiz', { type: 'course', id: course.id })"
+                        >
+                            <Plus class="h-3.5 w-3.5" />
+                            Tambah Quiz Kursus
+                        </Button>
+                    </div>
+                </template>
+
+                <!-- Course-level quizzes in read-only mode -->
+                <template v-else>
+                    <div
+                        v-for="quiz in coursePreQuizzes"
+                        :key="`course-quiz-pre-${quiz.id}`"
+                        class="flex justify-between border-b py-2"
+                    >
+                        <p
+                            class="text-sm font-bold text-blue-700 hover:cursor-pointer hover:underline dark:text-blue-400"
+                            @click="$emit('display-quiz', quiz)"
+                            :class="currentQuiz?.id === quiz.id ? 'underline' : ''"
+                        >
+                            {{ quiz.title }}
+                            <span class="text-xs font-normal opacity-60">(Kursus)</span>
+                        </p>
+                    </div>
+                    <div
+                        v-for="quiz in coursePostQuizzes"
+                        :key="`course-quiz-post-${quiz.id}`"
+                        class="flex justify-between border-b py-2"
+                    >
+                        <p
+                            class="text-sm font-bold text-orange-700 hover:cursor-pointer hover:underline dark:text-orange-400"
+                            @click="$emit('display-quiz', quiz)"
+                            :class="currentQuiz?.id === quiz.id ? 'underline' : ''"
+                        >
+                            {{ quiz.title }}
+                            <span class="text-xs font-normal opacity-60">(Kursus)</span>
+                        </p>
+                    </div>
+                </template>
+
+                <!-- =============================== -->
+                <!-- MODULES                          -->
+                <!-- =============================== -->
+
                 <!-- Draggable module list (control mode) -->
                 <VueDraggable
                     v-if="isControl"
@@ -362,83 +491,119 @@ function postQuizzes(mod: Module): Quiz[] {
                                 <div
                                     v-for="lesson in mod.lessons"
                                     :key="lesson.id"
-                                    class="flex items-center justify-between gap-2 border-b py-2 pr-2"
+                                    class="border-b py-2 pr-2"
                                 >
-                                    <GripVertical
-                                        class="lesson-drag-handle h-3.5 w-3.5 shrink-0 cursor-grab text-muted-foreground"
-                                    />
-
-                                    <!-- Inline edit lesson -->
-                                    <template
-                                        v-if="editingLessonId === lesson.id"
-                                    >
-                                        <Input
-                                            v-model="editingLessonTitle"
-                                            class="h-7 flex-1 text-sm"
-                                            @keyup.enter="
-                                                saveEditLesson(lesson)
-                                            "
-                                            @keyup.escape="cancelEditLesson"
-                                            autofocus
+                                    <div class="flex items-center justify-between gap-2">
+                                        <GripVertical
+                                            class="lesson-drag-handle h-3.5 w-3.5 shrink-0 cursor-grab text-muted-foreground"
                                         />
-                                        <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            class="h-7 w-7 shrink-0"
-                                            @click="saveEditLesson(lesson)"
-                                        >
-                                            <Check class="h-3.5 w-3.5" />
-                                        </Button>
-                                        <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            class="h-7 w-7 shrink-0"
-                                            @click="cancelEditLesson"
-                                        >
-                                            <X class="h-3.5 w-3.5" />
-                                        </Button>
-                                    </template>
 
-                                    <template v-else>
-                                        <p
-                                            class="flex-1 text-sm font-bold hover:cursor-pointer hover:underline"
-                                            @click="
-                                                $emit(
-                                                    'display-module',
-                                                    lesson.id,
-                                                )
-                                            "
+                                        <!-- Inline edit lesson -->
+                                        <template
+                                            v-if="editingLessonId === lesson.id"
                                         >
-                                            {{ lesson.title }}
-                                        </p>
-                                        <div
-                                            class="flex shrink-0 items-center gap-0.5"
-                                        >
+                                            <Input
+                                                v-model="editingLessonTitle"
+                                                class="h-7 flex-1 text-sm"
+                                                @keyup.enter="
+                                                    saveEditLesson(lesson)
+                                                "
+                                                @keyup.escape="cancelEditLesson"
+                                                autofocus
+                                            />
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                class="h-7 w-7"
-                                                @click="startEditLesson(lesson)"
+                                                class="h-7 w-7 shrink-0"
+                                                @click="saveEditLesson(lesson)"
                                             >
-                                                <Pencil class="h-3 w-3" />
+                                                <Check class="h-3.5 w-3.5" />
                                             </Button>
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                class="h-7 w-7"
+                                                class="h-7 w-7 shrink-0"
+                                                @click="cancelEditLesson"
+                                            >
+                                                <X class="h-3.5 w-3.5" />
+                                            </Button>
+                                        </template>
+
+                                        <template v-else>
+                                            <p
+                                                class="flex-1 text-sm font-bold hover:cursor-pointer hover:underline"
                                                 @click="
                                                     $emit(
-                                                        'open-delete-lesson',
-                                                        lesson,
+                                                        'display-module',
+                                                        lesson.id,
                                                     )
                                                 "
                                             >
-                                                <Trash2
-                                                    class="h-3 w-3 text-destructive"
-                                                />
-                                            </Button>
-                                        </div>
-                                    </template>
+                                                {{ lesson.title }}
+                                            </p>
+                                            <div
+                                                class="flex shrink-0 items-center gap-0.5"
+                                            >
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    class="h-7 w-7"
+                                                    @click="startEditLesson(lesson)"
+                                                >
+                                                    <Pencil class="h-3 w-3" />
+                                                </Button>
+                                                <Button
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    class="h-7 w-7"
+                                                    @click="
+                                                        $emit(
+                                                            'open-delete-lesson',
+                                                            lesson,
+                                                        )
+                                                    "
+                                                >
+                                                    <Trash2
+                                                        class="h-3 w-3 text-destructive"
+                                                    />
+                                                </Button>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Lesson-level quizzes (green) -->
+                                    <div
+                                        v-for="quiz in lessonQuizzes(lesson)"
+                                        :key="`lesson-quiz-${quiz.id}`"
+                                        class="ml-5 mt-1 flex items-center justify-between gap-2 rounded bg-green-50 px-2 py-1.5 dark:bg-green-950/30"
+                                    >
+                                        <p
+                                            class="flex-1 text-xs font-bold text-green-700 hover:cursor-pointer hover:underline dark:text-green-400"
+                                            @click="$emit('display-quiz', quiz)"
+                                        >
+                                            {{ quiz.title }}
+                                        </p>
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            class="h-6 w-6"
+                                            @click="$emit('delete-quiz', quiz)"
+                                        >
+                                            <Trash2
+                                                class="h-2.5 w-2.5 text-destructive"
+                                            />
+                                        </Button>
+                                    </div>
+
+                                    <!-- Add quiz button for lesson -->
+                                    <Button
+                                        variant="link"
+                                        class="ml-5 mt-1 p-0! text-xs"
+                                        @click="$emit('open-add-quiz', { type: 'lesson', id: lesson.id })"
+                                    >
+                                        <Plus class="h-3 w-3" />
+                                        Tambah Quiz Materi
+                                    </Button>
                                 </div>
                             </VueDraggable>
 
@@ -481,7 +646,7 @@ function postQuizzes(mod: Module): Quiz[] {
                                 <Button
                                     variant="link"
                                     class="mt-2 p-0! text-xs"
-                                    @click="$emit('open-add-quiz', mod.id)"
+                                    @click="$emit('open-add-quiz', { type: 'module', id: mod.id })"
                                 >
                                     <Plus class="h-3.5 w-3.5" />
                                     Tambah Quiz
@@ -536,21 +701,38 @@ function postQuizzes(mod: Module): Quiz[] {
                                 <div
                                     v-for="lesson in mod.lessons"
                                     :key="lesson.id"
-                                    class="flex justify-between border-b py-2"
+                                    class="border-b py-2"
                                 >
-                                    <p
-                                        class="text-sm font-bold hover:cursor-pointer hover:underline"
-                                        @click="
-                                            $emit('display-module', lesson.id)
-                                        "
-                                        :class="
-                                            currentLessonId === lesson.id
-                                                ? 'text-primary'
-                                                : ''
-                                        "
+                                    <div class="flex justify-between">
+                                        <p
+                                            class="text-sm font-bold hover:cursor-pointer hover:underline"
+                                            @click="
+                                                $emit('display-module', lesson.id)
+                                            "
+                                            :class="
+                                                currentLessonId === lesson.id
+                                                    ? 'text-primary'
+                                                    : ''
+                                            "
+                                        >
+                                            {{ lesson.title }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Lesson-level quizzes (read-only, green) -->
+                                    <div
+                                        v-for="quiz in lessonQuizzes(lesson)"
+                                        :key="`lesson-quiz-${quiz.id}`"
+                                        class="ml-4 mt-1 flex justify-between"
                                     >
-                                        {{ lesson.title }}
-                                    </p>
+                                        <p
+                                            class="text-xs font-bold text-green-700 hover:cursor-pointer hover:underline dark:text-green-400"
+                                            @click="$emit('display-quiz', quiz)"
+                                            :class="currentQuiz?.id === quiz.id ? 'underline' : ''"
+                                        >
+                                            {{ quiz.title }}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <!-- Post-test quizzes (read-only) -->
@@ -578,7 +760,7 @@ function postQuizzes(mod: Module): Quiz[] {
 
                 <!-- Empty state -->
                 <div
-                    v-if="modules.length === 0"
+                    v-if="modules.length === 0 && !hasCourseQuizzes"
                     class="flex flex-col items-center justify-center gap-3 py-12 text-center text-muted-foreground"
                 >
                     <p class="text-sm">Belum ada modul.</p>

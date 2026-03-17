@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Quiz;
+use App\Models\Course;
 use App\Models\Module;
+use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\Option;
 use Illuminate\Http\Request;
@@ -11,9 +13,33 @@ use Illuminate\Http\Request;
 class QuizController extends Controller
 {
   /**
-   * Store a newly created quiz in a module.
+   * Store a newly created quiz for a module.
    */
-  public function store(Request $request, Module $module)
+  public function storeForModule(Request $request, Module $module)
+  {
+    return $this->createQuiz($request, $module);
+  }
+
+  /**
+   * Store a newly created quiz for a lesson.
+   */
+  public function storeForLesson(Request $request, Lesson $lesson)
+  {
+    return $this->createQuiz($request, $lesson);
+  }
+
+  /**
+   * Store a newly created quiz for a course.
+   */
+  public function storeForCourse(Request $request, Course $course)
+  {
+    return $this->createQuiz($request, $course);
+  }
+
+  /**
+   * Shared helper to create a quiz on any quizable model.
+   */
+  private function createQuiz(Request $request, $quizable)
   {
     $validated = $request->validate([
       'title' => 'required|string|max:255',
@@ -22,7 +48,7 @@ class QuizController extends Controller
       'type' => 'required|in:pre,post',
     ]);
 
-    $module->quizzes()->create([
+    $quizable->quizzes()->create([
       'title' => $validated['title'],
       'passing_score' => $validated['score'],
       'time_limit' => $validated['time_limit'],

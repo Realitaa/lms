@@ -2,7 +2,7 @@
 import { toTypedSchema } from '@vee-validate/zod';
 import { router } from '@inertiajs/vue3';
 import { useForm } from 'vee-validate';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { toast } from 'vue-sonner';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,8 @@ import {
 
 const props = defineProps<{
   open: boolean;
-  moduleId: number | null;
+  quizableType: 'course' | 'module' | 'lesson';
+  quizableId: number | null;
 }>();
 
 const emit = defineEmits<{
@@ -66,11 +67,36 @@ const { handleSubmit, resetForm } = useForm({
   },
 });
 
+// Compute the POST URL based on the quizable type
+const postUrl = computed(() => {
+  const id = props.quizableId;
+  switch (props.quizableType) {
+    case 'course':
+      return `/courses/${id}/quizzes`;
+    case 'module':
+      return `/courses/modules/${id}/quizzes`;
+    case 'lesson':
+      return `/courses/lessons/${id}/quizzes`;
+  }
+});
+
+// Compute the dialog description based on the quizable type
+const dialogDescription = computed(() => {
+  switch (props.quizableType) {
+    case 'course':
+      return 'Masukkan data kuis baru untuk kursus ini.';
+    case 'module':
+      return 'Masukkan data kuis baru untuk modul ini.';
+    case 'lesson':
+      return 'Masukkan data kuis baru untuk materi ini.';
+  }
+});
+
 const onSubmit = handleSubmit((values) => {
-  if (!props.moduleId) return;
+  if (!props.quizableId) return;
 
   isSubmitting.value = true;
-  router.post(`/courses/modules/${props.moduleId}/quizzes`, {
+  router.post(postUrl.value, {
     title: values.title,
     score: values.score,
     time_limit: values.time_limit,
@@ -98,7 +124,7 @@ const onSubmit = handleSubmit((values) => {
       <DialogHeader>
         <DialogTitle>Tambah Kuis</DialogTitle>
         <DialogDescription>
-          Masukkan data kuis baru untuk modul ini.
+          {{ dialogDescription }}
         </DialogDescription>
       </DialogHeader>
 
