@@ -5,6 +5,7 @@ import type { Component } from 'vue'
 import AddImage from './button/AddImage.vue'
 import AddYoutube from './button/AddYoutube.vue'
 import UndoRedo from './button/UndoRedo.vue'
+import Math from './button/AddMath.vue'
 import { Left, Center, Right, Justify } from './toggle/align'
 import { Bold, Italic, Underline, Strike } from './toggle/format'
 import { Header1, Header2, Header3, Header4, Header5, Header6 } from './toggle/header'
@@ -21,7 +22,7 @@ withDefaults(defineProps<{
     ['bold', 'italic', 'underline', 'strike'],
     ['bullet', 'ordered'],
     ['left', 'center', 'right', 'justify'],
-    ['image', 'youtube']
+    ['image', 'youtube', 'math']
   ]
 })
 
@@ -31,7 +32,7 @@ const componentMap: Record<string, Component> = {
   bold: Bold, italic: Italic, underline: Underline, strike: Strike,
   bullet: Bullet, ordered: Ordered,
   left: Left, center: Center, right: Right, justify: Justify,
-  image: AddImage, youtube: AddYoutube
+  image: AddImage, youtube: AddYoutube, math: Math
 }
 </script>
 
