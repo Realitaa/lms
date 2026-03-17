@@ -52,3 +52,39 @@ export type Course = {
     modules?: Module[];
     quizzes?: Quiz[];
 };
+
+export type DiscussionThread = {
+    id: number;
+    lesson_id: number;
+    user_id: number;
+    title: string;
+    content: string;
+    created_at: string;
+    updated_at: string;
+    user: {
+        id: number;
+        name: string;
+        avatar?: string;
+    };
+    lesson: Lesson & {
+        module: Module & {
+            course: Course;
+        };
+    };
+    replies_count: number;
+    replies?: DiscussionReply[];
+};
+
+export type DiscussionReply = {
+    id: number;
+    thread_id: number;
+    user_id: number;
+    content: string;
+    created_at: string;
+    updated_at: string;
+    user: {
+        id: number;
+        name: string;
+        avatar?: string;
+    };
+};

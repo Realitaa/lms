@@ -37,7 +37,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Forum Diskusi',
-        href: '#',
+        href: '/discussions',
         icon: MessagesSquare,
     }
 ];
