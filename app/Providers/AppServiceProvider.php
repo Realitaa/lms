@@ -24,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        Relation::enforceMorphMap([
+            'course' => \App\Models\Course::class,
+            'module' => \App\Models\Module::class,
+            'lesson' => \App\Models\Lesson::class,
+        ]);
     }
 
     /**

@@ -19,6 +19,11 @@ class Lesson extends Model
         'is_published' => 'boolean',
     ];
 
+    public function quizzes()
+    {
+        return $this->morphMany(Quiz::class, 'quizable');
+    }
+
     public function module()
     {
         return $this->belongsTo(Module::class);

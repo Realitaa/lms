@@ -14,6 +14,11 @@ class Course extends Model
         'description',
     ];
 
+    public function quizzes()
+    {
+        return $this->morphMany(Quiz::class, 'quizable');
+    }
+
     public function modules()
     {
         return $this->hasMany(Module::class)->orderBy('order');

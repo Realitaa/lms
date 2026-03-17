@@ -7,16 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Quiz extends Model
 {
     protected $fillable = [
-        'module_id',
+        'quizable_id',
+        'quizable_type',
         'title',
         'type',
         'passing_score',
         'time_limit',
     ];
 
-    public function module()
+    public function quizable()
     {
-        return $this->belongsTo(Module::class);
+        return $this->morphTo();
     }
 
     public function questions()
