@@ -9,6 +9,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/editor/RichTextEditor.vue';
 import type { Quiz, Question, Option } from '@/types';
+import ContentRenderer from '../courses/ContentRenderer.vue';
+import { tiptapJsonToHtml } from '@/utils/tiptapToHtml'
 
 const props = defineProps<{
     quiz: Quiz;
@@ -61,20 +63,9 @@ function selectQuestion(index: number) {
     editingOptionId.value = null;
 }
 
-function tiptapToText(json: Record<string, unknown>): string {
+function tiptapToHtml(json: Record<string, unknown>): string {
     if (!json || !json.content) return '';
-    try {
-        const content = json.content as Array<{
-            content?: Array<{ text?: string }>;
-        }>;
-        return content
-            .map((node) =>
-                (node.content ?? []).map((c) => c.text ?? '').join(''),
-            )
-            .join(' ');
-    } catch {
-        return '';
-    }
+    return tiptapJsonToHtml(json);
 }
 
 function addQuestion() {
@@ -288,129 +279,69 @@ function deleteQuiz() {
         <ScrollArea class="w-full px-2 pb-3">
             <div class="flex w-max gap-2">
                 <!-- quiz question numbers -->
-                <Button
-                    v-for="(q, idx) in quiz.questions"
-                    :key="q.id"
-                    :variant="
-                        currentQuestionIndex === idx ? 'default' : 'outline'
-                    "
-                    @click="selectQuestion(idx)"
-                    >{{ idx + 1 }}</Button
-                >
+                <Button v-for="(q, idx) in quiz.questions" :key="q.id" :variant="currentQuestionIndex === idx ? 'default' : 'outline'
+                    " @click="selectQuestion(idx)">{{ idx + 1 }}</Button>
                 <Button variant="ghost" @click="addQuestion">
                     <Plus />
                     Tambah Soal
                 </Button>
             </div>
-            <ScrollBar
-                orientation="horizontal"
-                class="mx-2 rounded-2xl bg-white"
-            />
+            <ScrollBar orientation="horizontal" class="mx-2 rounded-2xl bg-white" />
         </ScrollArea>
 
         <!-- Question & Options area -->
-        <div
-            class="mt-2 flex h-[calc(100vh-310px)] flex-col space-y-2"
-            v-if="currentQuestion"
-        >
+        <div class="mt-2 flex h-[calc(100vh-310px)] flex-col space-y-2" v-if="currentQuestion">
             <div class="h-1/2 space-y-2 rounded-2xl border py-2 pl-2">
                 <ScrollArea class="h-full overflow-auto">
                     <!-- Question text -->
                     <div class="mr-2 flex justify-between">
-                        <p class="flex-1">
-                            {{ tiptapToText(currentQuestion.question_text) }}
-                        </p>
+                        <ContentRenderer :content="tiptapToHtml(currentQuestion.question_text)" class="p-0" />
                         <div class="flex shrink-0 gap-1">
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                @click="startEditQuestion(currentQuestion)"
-                                v-if="editingQuestionId !== currentQuestion.id"
-                            >
+                            <Button size="icon" variant="ghost" @click="startEditQuestion(currentQuestion)"
+                                v-if="editingQuestionId !== currentQuestion.id">
                                 <Pencil class="h-4 w-4" />
                             </Button>
-                            <template
-                                v-if="editingQuestionId === currentQuestion.id"
-                            >
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    @click="saveQuestion(currentQuestion)"
-                                >
+                            <template v-if="editingQuestionId === currentQuestion.id">
+                                <Button size="icon" variant="ghost" @click="saveQuestion(currentQuestion)">
                                     <Check class="h-4 w-4" />
                                 </Button>
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    @click="cancelEditQuestion"
-                                >
+                                <Button size="icon" variant="ghost" @click="cancelEditQuestion">
                                     <X class="h-4 w-4" />
                                 </Button>
                             </template>
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                @click="deleteQuestion(currentQuestion)"
-                            >
+                            <Button size="icon" variant="ghost" @click="deleteQuestion(currentQuestion)">
                                 <Trash2 class="h-4 w-4 text-destructive" />
                             </Button>
                         </div>
                     </div>
                     <!-- options -->
                     <RadioGroup class="mt-2">
-                        <div
-                            class="flex items-center space-x-2"
-                            v-for="option in currentQuestion.options"
-                            :key="option.id"
-                        >
-                            <RadioGroupItem
-                                :id="`opt-${option.id}`"
-                                :value="option.id.toString()"
-                                :checked="option.is_correct"
-                                @click="toggleCorrectOption(option)"
-                            />
-                            <Label
-                                :for="`opt-${option.id}`"
-                                :class="
-                                    option.is_correct
-                                        ? 'font-bold text-green-600 dark:text-green-400'
-                                        : ''
-                                "
-                            >
-                                {{ tiptapToText(option.option_text) }}
+                        <div class="flex items-center space-x-2" v-for="option in currentQuestion.options"
+                            :key="option.id">
+                            <RadioGroupItem :id="`opt-${option.id}`" :value="option.id.toString()"
+                                :checked="option.is_correct" @click="toggleCorrectOption(option)" />
+                            <Label :for="`opt-${option.id}`" :class="option.is_correct
+                                ? 'font-bold text-green-600 dark:text-green-400'
+                                : ''
+                                ">
+                                <ContentRenderer :content="tiptapToHtml(option.option_text)" class="p-0" />
                             </Label>
                             <!-- edit option -->
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                @click="startEditOption(option)"
-                                v-if="editingOptionId !== option.id"
-                            >
+                            <Button size="icon" variant="ghost" @click="startEditOption(option)"
+                                v-if="editingOptionId !== option.id">
                                 <Pencil class="h-3.5 w-3.5" />
                             </Button>
                             <template v-if="editingOptionId === option.id">
                                 <!-- save edited option -->
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    @click="saveOption(option)"
-                                >
+                                <Button size="icon" variant="ghost" @click="saveOption(option)">
                                     <Check class="h-3.5 w-3.5" />
                                 </Button>
                                 <!-- cancel editing option -->
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    @click="cancelEditOption"
-                                >
+                                <Button size="icon" variant="ghost" @click="cancelEditOption">
                                     <X class="h-3.5 w-3.5" />
                                 </Button>
                             </template>
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                @click="deleteOption(option)"
-                            >
+                            <Button size="icon" variant="ghost" @click="deleteOption(option)">
                                 <Trash2 class="h-3 w-3 text-destructive" />
                             </Button>
                         </div>
@@ -428,34 +359,25 @@ function deleteQuiz() {
                     <p class="mb-1 text-xs text-muted-foreground">
                         Mengedit soal:
                     </p>
-                    <RichTextEditor
-                        class="max-h-[18.5vh] min-h-25"
-                        :config="editorFeature"
-                        :model-value="questionEditorContent"
-                        @update:model-value="
+                    <RichTextEditor class="max-h-[18.5vh] min-h-25" :config="editorFeature"
+                        :model-value="questionEditorContent" @update:model-value="
                             (v: Record<string, unknown>) =>
                                 (questionEditorContent = v)
-                        "
-                    />
+                        " />
                 </template>
                 <template v-else-if="editingOptionId">
                     <p class="mb-1 text-xs text-muted-foreground">
                         Mengedit opsi:
                     </p>
-                    <RichTextEditor
-                        class="max-h-[18.5vh] min-h-25"
-                        :config="editorFeature"
-                        :model-value="optionEditorContent"
-                        @update:model-value="
+                    <RichTextEditor class="max-h-[18.5vh] min-h-25" :config="editorFeature"
+                        :model-value="optionEditorContent" @update:model-value="
                             (v: Record<string, unknown>) =>
                                 (optionEditorContent = v)
-                        "
-                    />
+                        " />
                 </template>
                 <template v-else>
                     <div
-                        class="flex h-full items-center justify-center rounded-xl border text-sm text-muted-foreground"
-                    >
+                        class="flex h-full items-center justify-center rounded-xl border text-sm text-muted-foreground">
                         Klik tombol pensil pada soal atau opsi untuk mengedit
                     </div>
                 </template>
@@ -463,10 +385,8 @@ function deleteQuiz() {
         </div>
 
         <!-- Empty state for quiz with no questions -->
-        <div
-            v-else
-            class="mt-2 flex flex-col items-center justify-center gap-3 rounded-xl border py-12 text-center text-muted-foreground"
-        >
+        <div v-else
+            class="mt-2 flex flex-col items-center justify-center gap-3 rounded-xl border py-12 text-center text-muted-foreground">
             <p class="text-sm">Belum ada soal di kuis ini.</p>
             <Button variant="outline" size="sm" @click="addQuestion">
                 <Plus class="mr-1 h-3.5 w-3.5" />

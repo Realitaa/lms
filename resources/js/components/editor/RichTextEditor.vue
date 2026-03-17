@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import TextAlign from '@tiptap/extension-text-align';
-import 'katex/dist/katex.min.css';
-import Underline from '@tiptap/extension-underline';
-import StarterKit from '@tiptap/starter-kit';
-import Strike from '@tiptap/extension-strike';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
+import { tiptapExtensions } from '@/config/tiptapExtensions';
 import EditorToolbar from './EditorToolbar.vue';
 import MathDialog from './MathDialog.vue';
-import Image from '@tiptap/extension-image';
-import Youtube from '@tiptap/extension-youtube';
-import { Mathematics } from '@tiptap/extension-mathematics';
 import { ref, watch } from 'vue';
 import { cn } from '@/lib/utils';
 
@@ -37,14 +30,10 @@ const mathEditState = ref<{
 });
 
 const editor = useEditor({
-    extensions: [
-        StarterKit,
-        Underline,
-        Strike,
-        Image,
-        Mathematics.configure({
+    extensions: tiptapExtensions({
+        mathematics: {
             inlineOptions: {
-                onClick: (node, pos) => {
+                onClick: (node: any, pos: number) => {
                     mathEditState.value = {
                         latex: node.attrs.latex,
                         pos,
@@ -56,7 +45,7 @@ const editor = useEditor({
             },
 
             blockOptions: {
-                onClick: (node, pos) => {
+                onClick: (node: any, pos: number) => {
                     mathEditState.value = {
                         latex: node.attrs.latex,
                         pos,
@@ -66,15 +55,8 @@ const editor = useEditor({
                     openMathDialog.value = true;
                 },
             },
-        }),
-        Youtube.configure({
-            controls: false,
-            nocookie: true,
-        }),
-        TextAlign.configure({
-            types: ['heading', 'paragraph'],
-        }),
-    ],
+        },
+    }),
 
     content: props.modelValue ?? '<p>Start typing here...</p>',
 
@@ -112,13 +94,9 @@ watch(
 </script>
 
 <template>
-    <div
-        v-if="editor"
-        class="flex flex-col overflow-hidden rounded-xl border border-gray-300 bg-white transition-all duration-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 dark:border-gray-700 dark:bg-gray-900"
-    >
-        <div
-            class="border-b border-gray-200 bg-gray-50 px-3 py-1 dark:border-gray-700 dark:bg-gray-800"
-        >
+    <div v-if="editor"
+        class="flex flex-col overflow-hidden rounded-xl border border-gray-300 bg-white transition-all duration-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 dark:border-gray-700 dark:bg-gray-900">
+        <div class="border-b border-gray-200 bg-gray-50 px-3 py-1 dark:border-gray-700 dark:bg-gray-800">
             <EditorToolbar :editor="editor" :config="config ?? undefined" />
         </div>
 
@@ -126,13 +104,7 @@ watch(
             <EditorContent :editor="editor" />
         </div>
 
-        <MathDialog
-            v-model:open="openMathDialog"
-            :editor="editor"
-            mode="edit"
-            :nodePos="mathEditState.pos"
-            :initialLatex="mathEditState.latex"
-            :initialIsBlock="mathEditState.isBlock"
-        />
+        <MathDialog v-model:open="openMathDialog" :editor="editor" mode="edit" :nodePos="mathEditState.pos"
+            :initialLatex="mathEditState.latex" :initialIsBlock="mathEditState.isBlock" />
     </div>
 </template>

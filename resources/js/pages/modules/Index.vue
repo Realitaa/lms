@@ -1,4 +1,3 @@
-```vue lms\resources\js\pages\modules\Index.vue
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
 import { Save, X } from 'lucide-vue-next';
@@ -16,7 +15,7 @@ import DeleteModuleDialog from '@/components/modules/DeleteModuleDialog.vue';
 import RichTextEditor from '@/components/editor/RichTextEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import LessonPreview from '@/components/modules/LessonPreview.vue';
+import ContentRenderer from '@/components/courses/ContentRenderer.vue'
 import ControlCard from '@/components/modules/ControlCard.vue';
 import QuizView from '@/components/modules/QuizView.vue';
 
@@ -34,7 +33,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: `/courses/${props.course.id}`,
     },
     {
-        title: 'Manajemen Modul',
+        title: 'Manajemen Kursus',
         href: '#',
     },
 ];
@@ -326,15 +325,13 @@ const subtitleUserActivity = computed(() => {
 </script>
 
 <template>
+
     <Head :title="`Manajemen Kursus ${course.title}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4">
-            <TitleWithBack
-                back-url="/courses"
-                :title="`Manajemen Kursus ${course.title}${titleUserActivity}`"
-                :subtitle="subtitleUserActivity"
-            />
+            <TitleWithBack back-url="/courses" :title="`Manajemen Kursus ${course.title}${titleUserActivity}`"
+                :subtitle="subtitleUserActivity" />
         </div>
 
         <div class="mx-4 flex h-[calc(100vh-200px)] justify-end gap-4">
@@ -354,11 +351,8 @@ const subtitleUserActivity = computed(() => {
                                 Tutup
                             </Button>
                             <!-- save module when clicked -->
-                            <Button
-                                @click="saveLessonContent"
-                                :disabled="isSavingLesson || !contentEdited"
-                                v-if="contentEdited"
-                            >
+                            <Button @click="saveLessonContent" :disabled="isSavingLesson || !contentEdited"
+                                v-if="contentEdited">
                                 <Save class="h-4 w-4" />
                                 Simpan
                             </Button>
@@ -366,68 +360,35 @@ const subtitleUserActivity = computed(() => {
                     </div>
                     <TabsContent value="editor">
                         <!-- edit content of lesson -->
-                        <RichTextEditor
-                            :model-value="lessonEditorContent"
-                            @update:model-value="onLessonEditorUpdate"
-                            @update:html-value="onLessonHtmlUpdate"
-                            class="max-h-125 min-h-125"
-                        />
+                        <RichTextEditor :model-value="lessonEditorContent" @update:model-value="onLessonEditorUpdate"
+                            @update:html-value="onLessonHtmlUpdate" class="max-h-125 min-h-125" />
                     </TabsContent>
                     <TabsContent value="preview">
-                        <LessonPreview :content="lessonHtmlContent" />
+                        <ContentRenderer :content="lessonHtmlContent" />
                     </TabsContent>
                 </Tabs>
             </div>
 
             <!-- Quiz view (70% width) -->
             <Transition name="fade">
-                <QuizView
-                    v-if="display == 'quiz' && currentQuiz"
-                    :quiz="currentQuiz"
-                    @close="displayControl"
-                />
+                <QuizView v-if="display == 'quiz' && currentQuiz" :quiz="currentQuiz" @close="displayControl" />
             </Transition>
 
             <!-- Module & Lesson Control Card -->
-            <ControlCard
-                :course="course"
-                :is-control="isControl"
-                :current-lesson-id="currentLessonId"
-                :current-quiz="currentQuiz"
-                @toggle-control="displayControl"
-                @display-module="displayModule"
-                @display-quiz="displayQuiz"
-                @open-add-module="addModuleDialogOpen = true"
-                @open-add-lesson="openAddLessonDialog"
-                @open-add-quiz="openAddQuizDialog"
-                @open-delete-module="openDeleteModuleDialog"
-                @open-delete-lesson="openDeleteLessonDialog"
-                @delete-quiz="deleteQuiz"
-            />
+            <ControlCard :course="course" :is-control="isControl" :current-lesson-id="currentLessonId"
+                :current-quiz="currentQuiz" @toggle-control="displayControl" @display-module="displayModule"
+                @display-quiz="displayQuiz" @open-add-module="addModuleDialogOpen = true"
+                @open-add-lesson="openAddLessonDialog" @open-add-quiz="openAddQuizDialog"
+                @open-delete-module="openDeleteModuleDialog" @open-delete-lesson="openDeleteLessonDialog"
+                @delete-quiz="deleteQuiz" />
         </div>
 
         <!-- Dialogs -->
-        <AddModuleDialog
-            v-model:open="addModuleDialogOpen"
-            :course-id="course.id"
-        />
-        <AddLessonDialog
-            v-model:open="addLessonDialogOpen"
-            :module-id="addLessonModuleId"
-        />
-        <AddQuizDialog
-            v-model:open="addQuizDialogOpen"
-            :quizable-type="addQuizPayload.type"
-            :quizable-id="addQuizPayload.id"
-        />
-        <DeleteLessonDialog
-            v-model:open="deleteLessonDialogOpen"
-            :lesson="selectedLesson"
-        />
-        <DeleteModuleDialog
-            v-model:open="deleteModuleDialogOpen"
-            :module="selectedModule"
-            :course-id="course.id"
-        />
+        <AddModuleDialog v-model:open="addModuleDialogOpen" :course-id="course.id" />
+        <AddLessonDialog v-model:open="addLessonDialogOpen" :module-id="addLessonModuleId" />
+        <AddQuizDialog v-model:open="addQuizDialogOpen" :quizable-type="addQuizPayload.type"
+            :quizable-id="addQuizPayload.id" />
+        <DeleteLessonDialog v-model:open="deleteLessonDialogOpen" :lesson="selectedLesson" />
+        <DeleteModuleDialog v-model:open="deleteModuleDialogOpen" :module="selectedModule" :course-id="course.id" />
     </AppLayout>
 </template>
