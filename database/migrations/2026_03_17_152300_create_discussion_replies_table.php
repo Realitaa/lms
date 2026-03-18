@@ -20,7 +20,7 @@ return new class extends Migration {
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->text('content');
+            $table->json('content');
 
             $table->timestamps();
         });

@@ -21,7 +21,7 @@ return new class extends Migration {
                 ->cascadeOnDelete();
 
             $table->string('title');
-            $table->text('content');
+            $table->json('content');
 
             $table->timestamps();
         });
