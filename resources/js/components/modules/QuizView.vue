@@ -11,6 +11,7 @@ import RichTextEditor from '@/components/editor/RichTextEditor.vue';
 import type { Quiz, Question, Option } from '@/types';
 import ContentRenderer from '../courses/ContentRenderer.vue';
 import { tiptapJsonToHtml } from '@/utils/tiptapToHtml'
+import { quizFeatures } from '@/config/editorFeature'
 
 const props = defineProps<{
     quiz: Quiz;
@@ -24,12 +25,6 @@ const questionEditorContent = ref<Record<string, unknown>>({});
 const isSavingQuestion = ref(false);
 const editingOptionId = ref<number | null>(null);
 const optionEditorContent = ref<Record<string, unknown>>({});
-const editorFeature = [
-    ['undoRedo'],
-    ['bold', 'italic', 'underline', 'strike'],
-    ['bullet', 'ordered'],
-    ['image', 'youtube', 'math'],
-];
 
 // Computed current question
 const currentQuestion = computed<Question | null>(() => {
@@ -359,7 +354,7 @@ function deleteQuiz() {
                     <p class="mb-1 text-xs text-muted-foreground">
                         Mengedit soal:
                     </p>
-                    <RichTextEditor class="max-h-[18.5vh] min-h-25" :config="editorFeature"
+                    <RichTextEditor class="max-h-[18.5vh] min-h-25" :config="quizFeatures"
                         :model-value="questionEditorContent" @update:model-value="
                             (v: Record<string, unknown>) =>
                                 (questionEditorContent = v)
@@ -369,7 +364,7 @@ function deleteQuiz() {
                     <p class="mb-1 text-xs text-muted-foreground">
                         Mengedit opsi:
                     </p>
-                    <RichTextEditor class="max-h-[18.5vh] min-h-25" :config="editorFeature"
+                    <RichTextEditor class="max-h-[18.5vh] min-h-25" :config="quizFeatures"
                         :model-value="optionEditorContent" @update:model-value="
                             (v: Record<string, unknown>) =>
                                 (optionEditorContent = v)

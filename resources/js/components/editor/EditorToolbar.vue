@@ -11,19 +11,13 @@ import { Bold, Italic, Underline, Strike } from './toggle/format'
 import { Header1, Header2, Header3, Header4, Header5, Header6 } from './toggle/header'
 import { Bullet, Ordered } from './toggle/list'
 import ToggleSeparator from './toggle/ToggleSeparator.vue'
+import { allFeatures } from '@/config/editorFeature'
 
 withDefaults(defineProps<{
   editor: Editor
   config?: string[][]
 }>(), {
-  config: () => [
-    ['undoRedo'],
-    ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-    ['bold', 'italic', 'underline', 'strike'],
-    ['bullet', 'ordered'],
-    ['left', 'center', 'right', 'justify'],
-    ['image', 'youtube', 'math']
-  ]
+  config: () => allFeatures
 })
 
 const componentMap: Record<string, Component> = {
@@ -38,17 +32,8 @@ const componentMap: Record<string, Component> = {
 
 <template>
   <div class="flex flex-wrap p-2 gap-y-2">
-    <div 
-      v-for="(group, groupIndex) in config" 
-      :key="groupIndex"
-      class="flex items-center h-6"
-    >
-      <component
-        v-for="item in group"
-        :key="item"
-        :is="componentMap[item]"
-        :editor="editor"
-      />
+    <div v-for="(group, groupIndex) in config" :key="groupIndex" class="flex items-center h-6">
+      <component v-for="item in group" :key="item" :is="componentMap[item]" :editor="editor" />
 
       <ToggleSeparator v-if="groupIndex < config.length - 1" class="mx-1" />
     </div>
