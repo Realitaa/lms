@@ -6,7 +6,7 @@ use App\Http\Controllers\LessonController;
 use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
-Route::resource('courses', CourseController::class);
+Route::resource('courses', CourseController::class)->middleware('auth', 'role:admin,editor');
 
 Route::group(['prefix' => 'courses', 'middleware' => ['auth', 'role:admin,editor']], function () {
   // Module routes

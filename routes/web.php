@@ -8,7 +8,7 @@ Route::inertia('/', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'role:admin,editor'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 
     // Upload routes
@@ -18,6 +18,7 @@ Route::middleware(['auth'])->group(function () {
 
 require __DIR__ . '/users.php';
 require __DIR__ . '/courses.php';
-require __DIR__ . '/modules.php';
 require __DIR__ . '/discussions.php';
 require __DIR__ . '/settings.php';
+require __DIR__ . '/students.php';
+

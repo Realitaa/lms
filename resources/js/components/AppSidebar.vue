@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { LayoutGrid, Users } from 'lucide-vue-next';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -19,17 +19,28 @@ import type { NavItem } from '@/types';
 import AppLogo from './AppLogo.vue';
 import HugeIconsCourse from './icons/HugeIconsCourse.vue';
 
+const { auth } = usePage().props;
+
+const userManagement = () => {
+    if (auth.user.role === 'admin') {
+        return [
+            {
+                title: 'Manajemen Pengguna',
+                href: users.index(),
+                icon: Users,
+            },
+        ];
+    }
+    return [];
+};
+
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
     },
-    {
-        title: 'Manajemen Pengguna',
-        href: users.index(),
-        icon: Users,
-    },
+    ...userManagement(),
     {
         title: 'Manajemen Kursus',
         href: courses.index(),
