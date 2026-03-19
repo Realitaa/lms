@@ -49,6 +49,7 @@ export type Course = {
     cover_image?: string;
     code: string;
     description?: string;
+    is_enrolled?: boolean;
     modules?: Module[];
     quizzes?: Quiz[];
 };

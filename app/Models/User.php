@@ -58,4 +58,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return ['uuid'];
     }
+
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'course_users')
+            ->withTimestamps()
+            ->withPivot('enrolled_at', 'completed_at');
+    }
 }
