@@ -10,4 +10,9 @@ class StudentController extends Controller
     {
         return inertia('students/Index');
     }
+
+    public function discover()
+    {
+        return inertia('students/Discover');
+    }
 }

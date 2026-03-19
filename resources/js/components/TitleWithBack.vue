@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { ArrowLeft } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import Title from '@/components/Title.vue';
 
 defineProps<{
   backUrl: string;
@@ -18,8 +19,7 @@ defineProps<{
       </Link>
     </Button>
     <div>
-      <h1 class="text-2xl font-bold tracking-tight">{{ title }}</h1>
-      <p class="text-muted-foreground" v-if="subtitle">{{ subtitle }}</p>
+      <Title :title="title" :subtitle="subtitle" />
     </div>
   </div>
 </template>

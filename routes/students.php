@@ -5,4 +5,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:user'])->group(function () {
   Route::get('/home', [StudentController::class, 'index'])->name('student.index');
+  Route::get('/discover', [StudentController::class, 'discover'])->name('student.discover');
 });
