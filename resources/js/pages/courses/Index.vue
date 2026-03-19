@@ -20,8 +20,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import AppLayout from '@/layouts/AppLayout.vue';
-import { edit, show } from '@/routes/courses';
+import { edit } from '@/routes/courses';
 import { index } from '@/routes/courses/modules';
+import { index as discussions } from '@/routes/discussions';
 import type { BreadcrumbItem, Course } from '@/types';
 
 const props = defineProps<{
@@ -93,7 +94,7 @@ function openDeleteDialog(course: Course) {
             <Link :href="index.url(course.id)">Atur Modul</Link>
           </Button>
           <Button variant="outline" class="w-[42%]">
-            <Link :href="show.url(course.id)">Statistik</Link>
+            <Link :href="discussions.url(course.id)">Diskusi</Link>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger as-child>

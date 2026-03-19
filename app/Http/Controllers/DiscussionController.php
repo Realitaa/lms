@@ -10,14 +10,18 @@ use Inertia\Inertia;
 
 class DiscussionController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, Course $course)
     {
         // Get all courses with modules and lessons for the filter dropdown
         $courses = Course::with('modules.lessons')->get();
 
+        $course->load('modules.lessons');
+        $lessonIds = $course->modules->flatMap->lessons->pluck('id');
+
         // Build the threads query
         $query = DiscussionThread::with(['user', 'lesson.module.course', 'replies.user'])
-            ->withCount('replies');
+            ->withCount('replies')
+            ->whereIn('lesson_id', $lessonIds);
 
         // Filter by lesson
         if ($request->filled('lesson_id')) {
@@ -32,6 +36,7 @@ class DiscussionController extends Controller
         $threads = $query->latest()->get();
 
         return Inertia::render('discussion/Index', [
+            'course' => $course,
             'courses' => $courses,
             'threads' => $threads,
             'filters' => [

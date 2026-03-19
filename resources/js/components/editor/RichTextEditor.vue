@@ -83,7 +83,11 @@ const editor = useEditor({
 watch(
     () => props.modelValue,
     (newVal) => {
-        if (!editor.value || !newVal) return;
+        if (!editor.value) return;
+        if (!newVal || Object.keys(newVal).length === 0) {
+            editor.value.commands.clearContent();
+            return;
+        }
         const currentJson = JSON.stringify(editor.value.getJSON());
         const newJson = JSON.stringify(newVal);
         if (currentJson !== newJson) {
