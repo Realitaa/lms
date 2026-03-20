@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 
 import type { BreadcrumbItem } from '@/types';
 import Title from '@/components/Title.vue';
+import Discussion from '@/components/discussion/Discussion.vue';
 
 import {
   Drawer,
@@ -30,25 +32,33 @@ const breadcrumbs: BreadcrumbItem[] = [
     href: '#',
   },
 ];
+
+const openDiscussion = ref(false);
 </script>
 
 <template>
 
   <Head title="Belajar" />
 
-  <AppLayout :breadcrumbs="breadcrumbs" class="light:bg-sky-100">
+  <AppLayout :breadcrumbs="breadcrumbs" class="bg-sky-100 dark:bg-black">
     <div class="p-4 flex flex-col gap-4">
-      <div class="space-y-2 p-4 border rounded-2xl light:bg-white shadow-sm">
-        <Title title="Nama Kursus"
-          subtitle="Silahkan selesaikan kelas dan meluluskan kuis pada materi agar dapat melanjutkan ke materi selanjutnya." />
-        <p class="text-sm text-muted-foreground">24 Materi</p>
+      <div
+        class="space-y-2 flex justify-between items-center p-4 border rounded-2xl bg-white dark:bg-transparent shadow-sm">
+        <div class="space-y-2">
+          <Title title="Nama Kursus"
+            subtitle="Silahkan selesaikan kelas dan meluluskan kuis pada materi agar dapat melanjutkan ke materi selanjutnya." />
+          <p class="text-sm text-muted-foreground">24 Materi</p>
+        </div>
+        <!-- Button to change between course and discussion forum -->
+        <Button variant="outline" @click="openDiscussion = !openDiscussion">{{ openDiscussion ? 'Kembali ke Materi' :
+          'Forum Diskusi' }}</Button>
       </div>
 
-      <div class="flex flex-col lg:flex-row w-full gap-4">
+      <div v-if="!openDiscussion" class="flex flex-col lg:flex-row w-full gap-4">
 
         <!-- Main Content (Readable width) -->
         <div
-          class="space-y-2 py-4 pl-4 border rounded-2xl light:bg-white shadow-sm w-full max-w-[750px] mx-auto xl:mx-0">
+          class="space-y-2 py-4 pl-4 border rounded-2xl bg-white dark:bg-transparent shadow-sm w-full max-w-[750px] mx-auto xl:mx-0">
           <ScrollArea class="h-[calc(100vh-280px)] pr-4">
             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Odit inventore ab nostrum eligendi numquam vel
             nemo
@@ -156,7 +166,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         </div>
 
         <!-- Sidebar (takes remaining space) -->
-        <div class="space-y-2 py-4 pl-4 border rounded-2xl light:bg-white shadow-sm w-full hidden xl:block xl:flex-1">
+        <div
+          class="space-y-2 py-4 pl-4 border rounded-2xl bg-white dark:bg-transparent shadow-sm w-full hidden xl:block xl:flex-1">
           <h2 class="text-lg font-medium">Materi Belajar</h2>
           <LessonLists />
         </div>
@@ -184,6 +195,10 @@ const breadcrumbs: BreadcrumbItem[] = [
           </Drawer>
         </div>
 
+      </div>
+
+      <div v-else class="flex flex-col lg:flex-row w-full gap-4">
+        <!-- <Discussion :course="course" :courses="courses" :threads="threads" :filters="filters" /> -->
       </div>
     </div>
   </AppLayout>

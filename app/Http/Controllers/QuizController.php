@@ -9,6 +9,7 @@ use App\Models\Lesson;
 use App\Models\Question;
 use App\Models\Option;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class QuizController extends Controller
 {
@@ -180,5 +181,10 @@ class QuizController extends Controller
     $option->delete();
 
     return back()->with('success', 'Opsi berhasil dihapus');
+  }
+
+  public function index()
+  {
+    return Inertia::render('students/Quiz');
   }
 }

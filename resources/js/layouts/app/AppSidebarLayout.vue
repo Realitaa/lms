@@ -9,19 +9,21 @@ import { cn } from '@/lib/utils';
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
     class?: string;
+    sidebar?: boolean;
 };
 
 withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
     class: '',
+    sidebar: true,
 });
 </script>
 
 <template>
     <AppShell variant="sidebar">
-        <AppSidebar />
+        <AppSidebar v-if="sidebar" />
         <AppContent variant="sidebar" :class="cn('overflow-x-hidden', $props.class)">
-            <AppSidebarHeader :breadcrumbs="breadcrumbs" />
+            <AppSidebarHeader v-if="sidebar" :breadcrumbs="breadcrumbs" />
             <slot />
         </AppContent>
     </AppShell>

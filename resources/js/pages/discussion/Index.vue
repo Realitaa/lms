@@ -7,8 +7,6 @@ import type {
 } from '@/types';
 import Heading from '@/components/Heading.vue';
 import Discussion from '@/components/discussion/Discussion.vue';
-import lessons from '@/routes/lessons';
-import Thread from '@/components/discussion/Thread.vue';
 
 const props = defineProps<{
     course: Course;
