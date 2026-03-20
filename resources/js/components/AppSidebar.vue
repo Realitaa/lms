@@ -59,12 +59,12 @@ const studentMenu = () => {
     if (userRole === 'user') {
         return [
             {
-                title: 'Home',
+                title: 'Beranda',
                 href: student.index(),
                 icon: House,
             },
             {
-                title: 'Discover',
+                title: 'Temukan Kursus',
                 href: student.discover(),
                 icon: Search,
             },

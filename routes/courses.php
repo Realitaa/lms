@@ -4,6 +4,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\LearningController;
 use Illuminate\Support\Facades\Route;
 
 Route::resource('courses', CourseController::class)->middleware('auth', 'role:admin,editor');
@@ -39,3 +40,5 @@ Route::group(['prefix' => 'courses', 'middleware' => ['auth', 'role:admin,editor
   Route::put('/options/{option}', [QuizController::class, 'updateOption'])->name('options.update');
   Route::delete('/options/{option}', [QuizController::class, 'destroyOption'])->name('options.destroy');
 });
+
+Route::get('/learning', [LearningController::class, 'index'])->name('learning.index');

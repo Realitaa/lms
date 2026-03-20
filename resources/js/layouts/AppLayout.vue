@@ -6,15 +6,17 @@ import 'vue-sonner/style.css'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
+    class?: string;
 };
 
 withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
+    class: '',
 });
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <AppLayout :breadcrumbs="breadcrumbs" :class="$props.class">
         <slot />
     </AppLayout>
     <Toaster position="top-center" rich-colors />
