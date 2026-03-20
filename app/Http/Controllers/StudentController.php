@@ -7,9 +7,22 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return inertia('students/Index');
+        $latestLessons = \App\Models\LessonUserProgress::with(['lesson.module.course'])
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('last_accessed_at')
+            ->take(4)
+            ->get();
+
+        $enrolledCourses = $request->user()->courses()
+            ->orderByDesc('course_users.enrolled_at')
+            ->get();
+
+        return inertia('students/Index', [
+            'latestLessons' => $latestLessons,
+            'enrolledCourses' => $enrolledCourses,
+        ]);
     }
 
     public function discover(Request $request)

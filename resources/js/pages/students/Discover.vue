@@ -73,18 +73,15 @@ function enrollCourse(courseId: number) {
 </script>
 
 <template>
-  <Head title="Discover Course" />
+
+  <Head title="Temukan Course" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-4 flex flex-col gap-6">
       <div class="flex items-center justify-between">
         <Title title="Discover Course" />
         <div class="w-full max-w-sm">
-          <Input 
-            v-model="search" 
-            type="search" 
-            placeholder="Cari kursus..." 
-          />
+          <Input v-model="search" type="search" placeholder="Cari kursus..." />
         </div>
       </div>
 
@@ -99,7 +96,8 @@ function enrollCourse(courseId: number) {
 
       <!-- Course cards grid -->
       <div v-else class="flex flex-wrap gap-4 h-fit items-stretch">
-        <Card v-for="course in props.courses.data" :key="course.id" class="flex w-full sm:w-[calc(50%-0.5rem)] md:max-w-sm flex-col overflow-hidden">
+        <Card v-for="course in props.courses.data" :key="course.id"
+          class="flex w-full sm:w-[calc(50%-0.5rem)] md:max-w-sm flex-col overflow-hidden">
           <img v-if="course.cover_image" :src="`/storage/${course.cover_image}`" :alt="course.title"
             class="aspect-video w-full object-cover" />
           <div v-else class="aspect-video w-full bg-muted flex items-center justify-center text-muted-foreground">
@@ -124,22 +122,17 @@ function enrollCourse(courseId: number) {
 
       <!-- Pagination -->
       <div class="mt-4 flex justify-center" v-if="props.courses.total > props.courses.per_page">
-        <Pagination
-          v-slot="{ page }"
-          :total="props.courses.total"
-          :sibling-count="1"
-          show-edges
-          :default-page="props.courses.current_page"
-          :items-per-page="props.courses.per_page"
-          @update:page="handlePageChange"
-        >
+        <Pagination v-slot="{ page }" :total="props.courses.total" :sibling-count="1" show-edges
+          :default-page="props.courses.current_page" :items-per-page="props.courses.per_page"
+          @update:page="handlePageChange">
           <PaginationContent v-slot="{ items }">
             <PaginationFirst />
             <PaginationPrevious />
 
             <template v-for="(item, index) in items">
               <PaginationItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
-                <Button class="w-10 h-10 p-0" :variant="item.value === page ? 'default' : 'outline'" @click="handlePageChange(item.value)">
+                <Button class="w-10 h-10 p-0" :variant="item.value === page ? 'default' : 'outline'"
+                  @click="handlePageChange(item.value)">
                   {{ item.value }}
                 </Button>
               </PaginationItem>
