@@ -21,5 +21,6 @@ require __DIR__ . '/courses.php';
 require __DIR__ . '/discussions.php';
 require __DIR__ . '/settings.php';
 require __DIR__ . '/students.php';
+require __DIR__ . '/learning.php';
 require __DIR__ . '/quiz.php';
 

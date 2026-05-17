@@ -24,4 +24,9 @@ class Quiz extends Model
     {
         return $this->hasMany(Question::class)->orderBy('order');
     }
+
+    public function attempts()
+    {
+        return $this->hasMany(QuizAttempts::class, 'quiz_id');
+    }
 }

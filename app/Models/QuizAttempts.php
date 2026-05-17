@@ -12,6 +12,14 @@ class QuizAttempts extends Model
         'score',
         'is_passed',
         'attempt_number',
+        'started_at',
+        'finished_at',
+    ];
+
+    protected $casts = [
+        'is_passed' => 'boolean',
+        'started_at' => 'datetime',
+        'finished_at' => 'datetime',
     ];
 
     public function user()
@@ -22,5 +30,10 @@ class QuizAttempts extends Model
     public function quiz()
     {
         return $this->belongsTo(Quiz::class);
+    }
+
+    public function answers()
+    {
+        return $this->hasMany(QuizAttemptAnswer::class, 'quiz_attempt_id');
     }
 }

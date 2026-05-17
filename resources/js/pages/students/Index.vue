@@ -55,7 +55,7 @@ const userName = auth.user.name;
             </CardContent>
             <CardFooter>
               <Button as-child variant="default" class="w-full">
-                <Link :href="`/courses/${progress.lesson.module.course.slug}/lessons/${progress.lesson.id}`">
+                <Link :href="`/learning/${progress.lesson.module.course.slug}/lessons/${progress.lesson.slug}`">
                   Lanjutkan
                 </Link>
               </Button>
@@ -92,7 +92,7 @@ const userName = auth.user.name;
             </CardHeader>
             <CardFooter class="mt-auto">
               <Button as-child variant="outline" class="w-full">
-                <Link :href="`/courses/${course.slug}`">
+                <Link :href="`/learning/${course.slug}/lessons/${course.modules?.[0]?.lessons?.[0]?.slug || ''}`">
                   Buka Kelas
                 </Link>
               </Button>

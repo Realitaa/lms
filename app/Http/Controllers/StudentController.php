@@ -16,6 +16,11 @@ class StudentController extends Controller
             ->get();
 
         $enrolledCourses = $request->user()->courses()
+            ->with(['modules' => function ($q) {
+                $q->orderBy('order')->with(['lessons' => function ($q) {
+                    $q->orderBy('order')->select('id', 'module_id', 'title', 'slug', 'order');
+                }]);
+            }])
             ->orderByDesc('course_users.enrolled_at')
             ->get();
 
